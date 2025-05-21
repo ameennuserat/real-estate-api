@@ -21,10 +21,7 @@ public class Client {
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
-    private String imageUrl;
-
-    private List<String> favorites;
-
-    private List<String> following;
+    private String favorites;
+    private String following;
 
 }

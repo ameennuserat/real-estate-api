@@ -18,18 +18,17 @@ public class Expert {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
-    private User user2;
+    private User user;
 
     private String profession;
 
     private String experience;
 
-    private double rating;
+    private double totalRate;
+
+    private double rateCount;
 
     private String bio;
-
-    @Column(name = "profile_image")
-    private String profileImage;
 
     @NotBlank(message =  "IdCardImage must not be blank")
     @Column(name = "id_card_image")

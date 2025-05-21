@@ -4,11 +4,9 @@ import com.graduation.realestateconsulting.config.JwtService;
 import com.graduation.realestateconsulting.model.dto.request.*;
 import com.graduation.realestateconsulting.model.dto.response.LoginResponse;
 import com.graduation.realestateconsulting.model.dto.response.RefreshTokenResponse;
-import com.graduation.realestateconsulting.model.dto.response.RegisterResponse;
 import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.Role;
-import com.graduation.realestateconsulting.model.mapper.LoginMapper;
-import com.graduation.realestateconsulting.model.mapper.RegisterMapper;
+import com.graduation.realestateconsulting.model.mapper.UserMapper;
 import com.graduation.realestateconsulting.observer.events.CreateClientEvent;
 import com.graduation.realestateconsulting.observer.events.CreateExpertEvent;
 import com.graduation.realestateconsulting.observer.events.CreateOfficeEvent;
@@ -27,31 +25,24 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private final RegisterMapper registerMapper;
-    private final LoginMapper loginMapper;
+    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final ApplicationEventPublisher publisher;
-    private final SendEmailMessage sendEmailMessage;
 
     @Transactional
     @Override
-    public RegisterResponse register(RegisterRequest request) {
-        System.out.println("register2");
-        String password = passwordEncoder.encode(request.getPassword());
-        request.setPassword(password);
-        User user = registerMapper.toEntity(request);
+    public String register(RegisterRequest request) {
+        User user = userMapper.toEntity(request);
         User savedUser = userRepository.save(user);
-        System.out.println("save user");
+
         if (request.getRole() == Role.USER) {
             publisher.publishEvent(new CreateClientEvent(this, savedUser));
         } else if (request.getRole() == Role.OFFICE) {
@@ -60,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
             publisher.publishEvent(new CreateExpertEvent(this, request, savedUser, request.getIdCardImage(), request.getDegreeCertificateImage()));
         }
         publisher.publishEvent(new GmailNotificationEvent(this, SentEmailMessageRequest.builder().to(savedUser.getEmail()).body(savedUser.getVerificationCode()).subject("Verification your account").build()));
-        return RegisterResponse.builder().message("registered successfully").build();
+        return "registered successfully";
     }
 
     @Override
@@ -70,12 +61,16 @@ public class AuthServiceImpl implements AuthService {
                 () -> new IllegalArgumentException("user with email " + request.getEmail() + " is not found")
         );
         user.setFcmToken(request.getFcmToken());
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
         String jwt = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        return loginMapper.toDto(user, jwt, refreshToken);
+        return LoginResponse.builder()
+                .user(userMapper.toDto(savedUser))
+                .token(jwt)
+                .refreshToken(refreshToken)
+                .build();
     }
 
 

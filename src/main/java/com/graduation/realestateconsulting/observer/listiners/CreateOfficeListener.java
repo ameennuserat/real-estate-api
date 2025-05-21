@@ -30,7 +30,7 @@ public class CreateOfficeListener {
         event.getUser().setStatus(UserStatus.PENDING);
         userRepository.save(event.getUser());
         Office office = Office.builder()
-                .user1(event.getUser())
+                .user(event.getUser())
                 .bio(event.getRegisterRequest().getBio())
                 .commercialRegisterImage(url)
                 .location(event.getRegisterRequest().getLocation())

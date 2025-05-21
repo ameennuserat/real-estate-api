@@ -1,6 +1,7 @@
 package com.graduation.realestateconsulting.controller;
 
 import com.graduation.realestateconsulting.model.dto.request.*;
+import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
 import com.graduation.realestateconsulting.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,40 +21,68 @@ public class AuthController {
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> register(@ModelAttribute @Valid RegisterRequest registerRequest) {
         System.out.println("register");
-        return new ResponseEntity<>(authService.register(registerRequest), HttpStatus.CREATED);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .message(authService.register(registerRequest))
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(authService.login(request))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
-        return ResponseEntity.ok(authService.refreshToken(request));
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(authService.refreshToken(request))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/verification")
     public ResponseEntity<?> verificationAccount(@RequestBody VerificationRequest request) {
         authService.verificationAccount(request);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .message("Account verified Successfully")
+                .build();
+        return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
 
     @PostMapping("/send-code")
     public ResponseEntity<?> sendCode(CodeRequest dto){
         authService.sendCode(dto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .message("Response sent Successfully")
+                .build();
+        return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(ResetPasswordRequest dto) {
         authService.changePassword(dto);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .message("Password Changed Successfully")
+                .build();
+        return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
 
     @DeleteMapping
     public ResponseEntity<?> logout(){
         authService.logout();
-        return ResponseEntity.noContent().build();
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .message("User logout Successfully")
+                .build();
+        return new ResponseEntity<>(response,HttpStatus.NO_CONTENT);
     }
 }
