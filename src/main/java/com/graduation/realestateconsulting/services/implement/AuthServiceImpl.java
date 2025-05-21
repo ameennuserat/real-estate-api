@@ -50,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
         } else if (request.getRole() == Role.EXPERT) {
             publisher.publishEvent(new CreateExpertEvent(this, request, savedUser, request.getIdCardImage(), request.getDegreeCertificateImage()));
         }
-//        publisher.publishEvent(new GmailNotificationEvent(this, SentEmailMessageRequest.builder().to(savedUser.getEmail()).body(savedUser.getVerificationCode()).subject("Verification your account").build()));
+        publisher.publishEvent(new GmailNotificationEvent(this, SentEmailMessageRequest.builder().to(savedUser.getEmail()).body(savedUser.getVerificationCode()).subject("Verification your account").build()));
         return "registered successfully";
     }
 
