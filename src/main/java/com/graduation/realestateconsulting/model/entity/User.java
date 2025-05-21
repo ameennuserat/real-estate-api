@@ -10,7 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.security.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -26,32 +25,43 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String firstName;
+
     private String lastName;
+
     @Column(unique = true)
     private String email;
+
     private String password;
+
     private String phone;
+
     @Enumerated(EnumType.STRING)
     private Role role;
+
     private boolean enable;
+
     private UserStatus status;
+
     private String verificationCode;
+
+    private String imageUrl;
+
     @Column(name = "fcm_token")
     private String fcmToken;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Client client;
 
-    @OneToOne(mappedBy = "user1", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Office office;
-
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

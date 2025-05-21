@@ -16,8 +16,8 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Jwt Security Api")
-                        .description("API documentation for Jwt Security")
+                        .title("Real Estate Api")
+                        .description("API documentation for Real Estate Application")
                         .version("1.0")
                 )
                 .addSecurityItem(new SecurityRequirement()

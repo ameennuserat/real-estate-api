@@ -2,8 +2,6 @@ package com.graduation.realestateconsulting.model.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -20,10 +18,7 @@ public class Office {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
-    private User user1;
-
-    @Column(name = "image_url")
-    private String imageUrl;
+    private User user;
 
     private String bio;
 

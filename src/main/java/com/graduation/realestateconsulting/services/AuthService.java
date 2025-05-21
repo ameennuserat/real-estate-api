@@ -3,14 +3,11 @@ package com.graduation.realestateconsulting.services;
 import com.graduation.realestateconsulting.model.dto.request.*;
 import com.graduation.realestateconsulting.model.dto.response.LoginResponse;
 import com.graduation.realestateconsulting.model.dto.response.RefreshTokenResponse;
-import com.graduation.realestateconsulting.model.dto.response.RegisterResponse;
-
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public interface AuthService {
 
-    RegisterResponse register(RegisterRequest request);
+    String register(RegisterRequest request);
 
     LoginResponse login(LoginRequest request);
 

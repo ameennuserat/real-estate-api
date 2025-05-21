@@ -1,5 +1,6 @@
 package com.graduation.realestateconsulting.model.dto.response;
 
+import com.graduation.realestateconsulting.model.enums.Role;
 import lombok.*;
 
 @Setter
@@ -15,4 +16,6 @@ public class UserResponse {
     private String phone;
     private String fcmToken;
     private boolean enabled;
+    private Role role;
+    private String imageUrl;
 }

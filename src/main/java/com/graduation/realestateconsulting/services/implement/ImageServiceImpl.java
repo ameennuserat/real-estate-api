@@ -1,15 +1,18 @@
 package com.graduation.realestateconsulting.services.implement;
 
 import com.graduation.realestateconsulting.services.ImageService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -22,23 +25,28 @@ public class ImageServiceImpl implements ImageService {
     @Value("${image.directory}")
     private String uploadImageDirectory;
 
-    @Override
-    public boolean checkIsFound(String path) {
-        return Files.exists(Path.of(uploadImageDirectory + "/" + path));
+    @PostConstruct
+    public void init() {
+        File file = new File(uploadImageDirectory);
+        if(!file.exists()) {
+            file.mkdirs();
+            System.out.println("Images Directory Created");
+        }else{
+            System.out.println("Images Directory Exists");
+        }
     }
+
 
     @Override
     public String uploadImage(MultipartFile image) throws IOException {
+
         String uniqueFileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        String directory = uploadImageDirectory;
+        InputStream inputStream = image.getInputStream();
 
-        Path uploadPath = Path.of(uploadImageDirectory);
-        Path filePath = uploadPath.resolve(uniqueFileName);
+        Path filePath = Path.of(directory, uniqueFileName);
 
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 
         return uniqueFileName;
     }

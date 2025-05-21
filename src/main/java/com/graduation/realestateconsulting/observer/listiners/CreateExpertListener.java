@@ -33,11 +33,12 @@ public class CreateExpertListener {
         event.getUser().setStatus(UserStatus.PENDING);
         userRepository.save(event.getUser());
         Expert expert = Expert.builder()
-                .user2(event.getUser())
+                .user(event.getUser())
                 .bio(event.getRegisterRequest().getBio())
                 .experience(event.getRegisterRequest().getExperience())
                 .profession(event.getRegisterRequest().getProfession())
-                .rating(5)
+                .totalRate(5)
+                .rateCount(1)
                 .idCardImage(idCardImage)
                 .degreeCertificateImage(degreeCertificateImage)
                 .build();

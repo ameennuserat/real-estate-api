@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class RegisterRequest {
     @NotBlank(message = "First name is required")
     private String firstName;
-    @NotBlank(message = "   Last name is required")
+    @NotBlank(message = "Last name is required")
     private String lastName;
     @NotBlank(message = "Email name is required")
     private String email;
@@ -28,15 +28,15 @@ public class RegisterRequest {
     private Role role;
     // for office
     private String location;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private MultipartFile commercialRegisterImage;
     // for expert
     private MultipartFile idCardImage;
     private MultipartFile degreeCertificateImage;
     private String profession;
     private String experience;
-    private double rating;
+    private Double rating;
     // for both (expert && office)
     private String bio;
 }
