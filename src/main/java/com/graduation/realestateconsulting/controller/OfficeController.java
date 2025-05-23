@@ -62,7 +62,7 @@ public class OfficeController {
         service.uploadImage(request);
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
-                .message("Commercial Register Image uploaded successfully")
+                .data(ResponseEntity.noContent().build().getStatusCode())
                 .build();
         return ResponseEntity.ok(response);
     }

@@ -61,7 +61,7 @@ public class ExpertController {
         service.uploadImage(request);
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
-                .message("Images uploaded successfully")
+                .data(ResponseEntity.noContent().build().getStatusCode())
                 .build();
         return ResponseEntity.ok(response);
     }
