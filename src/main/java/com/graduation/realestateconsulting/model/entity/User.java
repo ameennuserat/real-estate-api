@@ -57,6 +57,10 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Office office;
 
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
+    private Expert expert;
+
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

@@ -22,7 +22,7 @@ public class UserController {
         userService.uploadImage(request);
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
-                .message("User image uploaded successfully")
+                .data("message => User image uploaded successfully")
                 .build();
         return ResponseEntity.ok(response);
     }

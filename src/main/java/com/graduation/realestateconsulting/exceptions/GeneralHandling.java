@@ -1,136 +1,116 @@
-package com.graduation.realestateconsulting.exceptions;
+    package com.graduation.realestateconsulting.exceptions;
 
-import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+    import com.graduation.realestateconsulting.model.dto.response.ExceptionResponse;
+    import jakarta.persistence.EntityNotFoundException;
+    import lombok.extern.slf4j.Slf4j;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.security.access.AccessDeniedException;
+    import org.springframework.web.bind.MethodArgumentNotValidException;
+    import org.springframework.web.bind.annotation.ControllerAdvice;
+    import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.*;
+    import java.util.Date;
+    import java.util.List;
+    import java.util.NoSuchElementException;
 
-@ControllerAdvice
-@Slf4j
-public class GeneralHandling {
+    @ControllerAdvice
+    @Slf4j
+    public class GeneralHandling {
 
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ExceptionResponse> handleValidationExceptions(
+                MethodArgumentNotValidException ex) {
 
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-//        Map<String, String> errors = new HashMap<>();
-//        ex.getBindingResult().getFieldErrors().forEach(error ->
-//                errors.put(error.getField(), error.getDefaultMessage()));
-//        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-//    }
+            List<ExceptionDto> errors = ex.getBindingResult()
+                    .getFieldErrors()
+                    .stream()
+                    .map(err -> ExceptionDto.builder()
+                            .timestamp(new Date())
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
+                            .message(err.getField() + ": " + err.getDefaultMessage())
+                            .build())
+                    .toList();
 
-    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    public ResponseEntity<?> methodArgumentNotValidHandle(MethodArgumentNotValidException ex) {
+            log.error("Validation failed: {}", errors);
 
-        List<String> errors = ex.getBindingResult().getFieldErrors()
-                .stream().map(FieldError::getDefaultMessage).toList();
+            ExceptionResponse body = ExceptionResponse.builder()
+                    .status("Failure")
+                    .message("Validation failed for request")
+                    .errors(errors)
+                    .build();
 
-        ExceptionDto exceptionResponse = ExceptionDto.builder()
-                .timestamp(new Date())
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(errors.toString())
-                .build();
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(body);
+        }
 
-        log.error("MethodArgumentNotValidException {}",errors);
+        @ExceptionHandler({NoSuchElementException.class, EntityNotFoundException.class})
+        public ResponseEntity<ExceptionResponse> handleNotFoundExceptions(
+                RuntimeException ex) {
 
-        GlobalResponse globalResponse = GlobalResponse.builder()
-                .status("Failure")
-                .error(exceptionResponse)
-                .build();
+            ExceptionDto dto = ExceptionDto.builder()
+                    .timestamp(new Date())
+                    .statusCode(HttpStatus.NOT_FOUND.value())
+                    .message(ex.getLocalizedMessage())
+                    .build();
 
-        return new ResponseEntity<>(globalResponse, HttpStatus.BAD_REQUEST);
+            log.error("Resource not found", ex);
+
+            ExceptionResponse body = ExceptionResponse.builder()
+                    .status("Failure")
+                    .message("Resource not found")
+                    .errors(List.of(dto))
+                    .build();
+
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(body);
+        }
+
+        @ExceptionHandler({IllegalArgumentException.class, AccessDeniedException.class})
+        public ResponseEntity<ExceptionResponse> handleBadRequestExceptions(
+                RuntimeException ex) {
+
+            ExceptionDto dto = ExceptionDto.builder()
+                    .timestamp(new Date())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .message(ex.getLocalizedMessage())
+                    .build();
+
+            log.error("Bad request", ex);
+
+            ExceptionResponse body = ExceptionResponse.builder()
+                    .status("Failure")
+                    .message("Bad request")
+                    .errors(List.of(dto))
+                    .build();
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(body);
+        }
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ExceptionResponse> handleAllUncaught(
+                Exception ex) {
+
+            ExceptionDto dto = ExceptionDto.builder()
+                    .timestamp(new Date())
+                    .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message(ex.getMessage())
+                    .build();
+
+            log.error("Internal server error", ex);
+
+            ExceptionResponse body = ExceptionResponse.builder()
+                    .status("Failure")
+                    .message("Internal server error")
+                    .errors(List.of(dto))
+                    .build();
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(body);
+        }
     }
-
-    @ExceptionHandler(value = {RuntimeException.class})
-    public ResponseEntity<?> runtimeException(RuntimeException ex) {
-        ExceptionDto exceptionResponse = ExceptionDto.builder()
-                .timestamp(new Date())
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(ex.getLocalizedMessage())
-                .build();
-
-        log.error("RuntimeException",ex);
-
-        GlobalResponse globalResponse = GlobalResponse.builder()
-                .status("Failure")
-                .error(exceptionResponse)
-                .build();
-
-        return new ResponseEntity<>(globalResponse, HttpStatus.BAD_REQUEST);
-    }
-
-//    @ExceptionHandler(value = {SQLIntegrityConstraintViolationException.class})
-//    public ResponseEntity<ExceptionDto> sqlIntegrityConstraintViolationHandle(SQLIntegrityConstraintViolationException ex) {
-//
-//        ExceptionDto exceptionResponse = ExceptionDto.builder()
-//                .timestamp(new Date())
-//                .statusCode(HttpStatus.BAD_REQUEST.value())
-//                .message(ex.getLocalizedMessage())
-//                .build();
-//
-//        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
-//    }
-
-    @ExceptionHandler(value = {NoSuchElementException.class})
-    public ResponseEntity<?> noSuchElementHandle(NoSuchElementException ex) {
-
-        ExceptionDto exceptionResponse = ExceptionDto.builder()
-                .timestamp(new Date())
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(ex.getLocalizedMessage())
-                .build();
-
-        log.error("NoSuchElementException",ex);
-
-        GlobalResponse globalResponse = GlobalResponse.builder()
-                .status("Failure")
-                .error(exceptionResponse)
-                .build();
-
-        return new ResponseEntity<>(globalResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(value = {IllegalArgumentException.class})
-    public ResponseEntity<?> illegalArgumentHandle(IllegalArgumentException ex) {
-
-        ExceptionDto exceptionResponse = ExceptionDto.builder()
-                .timestamp(new Date())
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(ex.getLocalizedMessage())
-                .build();
-
-//        log.error("IllegalArgumentException",ex);
-
-        GlobalResponse globalResponse = GlobalResponse.builder()
-                .status("Failure")
-                .error(exceptionResponse)
-                .build();
-
-        return new ResponseEntity<>(globalResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(value = {AccessDeniedException.class})
-    public ResponseEntity<?> accessDeniedException(AccessDeniedException ex) {
-
-        ExceptionDto exceptionResponse = ExceptionDto.builder()
-                .timestamp(new Date())
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .message(ex.getLocalizedMessage())
-                .build();
-
-        log.error("AccessDeniedException",ex);
-
-        GlobalResponse globalResponse = GlobalResponse.builder()
-                .status("Failure")
-                .error(exceptionResponse)
-                .build();
-
-        return new ResponseEntity<>(globalResponse, HttpStatus.BAD_REQUEST);
-    }
-}

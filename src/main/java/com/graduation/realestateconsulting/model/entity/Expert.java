@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Setter
 @Getter
@@ -38,4 +40,6 @@ public class Expert {
     @Column(name = "degree_certificate_image")
     private String degreeCertificateImage;
 
+    @OneToMany(mappedBy = "expert", cascade = CascadeType.ALL)
+    private List<WorkingTimes> workingHours;
 }

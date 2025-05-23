@@ -23,7 +23,7 @@ public class AuthController {
         System.out.println("register");
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
-                .message(authService.register(registerRequest))
+                .data(authService.register(registerRequest))
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -51,7 +51,7 @@ public class AuthController {
         authService.verificationAccount(request);
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
-                .message("Account verified Successfully")
+                .data("message => Account verified Successfully")
                 .build();
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
@@ -61,7 +61,7 @@ public class AuthController {
         authService.sendCode(dto);
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
-                .message("Response sent Successfully")
+                .data("message => Response sent Successfully")
                 .build();
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
@@ -71,7 +71,7 @@ public class AuthController {
         authService.changePassword(dto);
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
-                .message("Password Changed Successfully")
+                .data("message => Password Changed Successfully")
                 .build();
         return new ResponseEntity<>(response,HttpStatus.CREATED);
     }
@@ -81,7 +81,7 @@ public class AuthController {
         authService.logout();
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
-                .message("User logout Successfully")
+                .data("message => User logout Successfully")
                 .build();
         return new ResponseEntity<>(response,HttpStatus.NO_CONTENT);
     }

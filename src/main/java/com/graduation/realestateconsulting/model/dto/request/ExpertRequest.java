@@ -8,6 +8,5 @@ import lombok.Data;
 public class ExpertRequest {
     private String profession;
     private String experience;
-    private double rating;
     private String bio;
 }
