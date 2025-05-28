@@ -6,6 +6,7 @@ import com.graduation.realestateconsulting.model.dto.response.LoginResponse;
 import com.graduation.realestateconsulting.model.dto.response.RefreshTokenResponse;
 import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.Role;
+import com.graduation.realestateconsulting.model.enums.UserStatus;
 import com.graduation.realestateconsulting.model.mapper.UserMapper;
 import com.graduation.realestateconsulting.observer.events.CreateClientEvent;
 import com.graduation.realestateconsulting.observer.events.CreateExpertEvent;
@@ -60,6 +61,11 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException("user with email " + request.getEmail() + " is not found")
         );
+
+        if(user.getStatus() != UserStatus.AVAILABLE){
+            throw new IllegalArgumentException("user is "+ user.getStatus().name());
+        }
+
         user.setFcmToken(request.getFcmToken());
         User savedUser = userRepository.save(user);
 

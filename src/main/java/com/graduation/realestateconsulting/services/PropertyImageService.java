@@ -1,8 +1,13 @@
 package com.graduation.realestateconsulting.services;
 
-import org.springframework.stereotype.Service;
+import com.graduation.realestateconsulting.model.dto.request.PropertyImageRequest;
+import com.graduation.realestateconsulting.model.dto.response.PropertyImageResponse;
 
-@Service
+import java.io.IOException;
+
 public interface PropertyImageService {
+
+    PropertyImageResponse save(PropertyImageRequest request);
+    void delete(Long id) throws IOException;
 
 }

@@ -5,6 +5,7 @@ import com.graduation.realestateconsulting.model.dto.request.OfficeRequest;
 import com.graduation.realestateconsulting.model.dto.response.OfficeResponse;
 import com.graduation.realestateconsulting.model.entity.Office;
 import com.graduation.realestateconsulting.model.entity.User;
+import com.graduation.realestateconsulting.model.enums.UserStatus;
 import com.graduation.realestateconsulting.model.mapper.OfficeMapper;
 import com.graduation.realestateconsulting.repository.OfficeRepository;
 import com.graduation.realestateconsulting.services.ImageService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.graduation.realestateconsulting.services.OfficeService;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,11 @@ public class OfficeServiceImpl implements OfficeService {
     @Override
     public Page<OfficeResponse> findAll(Pageable pageable) {
         return repository.findAll(pageable).map(mapper::toDto);
+    }
+
+    @Override
+    public List<OfficeResponse> findAllByUserStatus(UserStatus status) {
+        return mapper.toDtos(repository.findAllByUserStatus((status)));
     }
 
     @Override
