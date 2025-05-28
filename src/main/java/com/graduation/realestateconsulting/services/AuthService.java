@@ -6,7 +6,6 @@ import com.graduation.realestateconsulting.model.dto.response.RefreshTokenRespon
 import java.time.LocalDateTime;
 
 public interface AuthService {
-
     String register(RegisterRequest request);
 
     LoginResponse login(LoginRequest request);

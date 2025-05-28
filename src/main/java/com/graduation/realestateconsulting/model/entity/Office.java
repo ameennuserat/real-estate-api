@@ -3,6 +3,11 @@ package com.graduation.realestateconsulting.model.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,4 +39,12 @@ public class Office {
     @Column(name = "commercial_register_image")
     private String commercialRegisterImage;
 
+    @OneToMany(mappedBy = "office",cascade = CascadeType.REMOVE)
+    private List<Property>  propertyList;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }
