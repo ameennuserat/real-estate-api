@@ -6,7 +6,6 @@ import com.graduation.realestateconsulting.model.dto.response.WorkingTimesRespon
 import com.graduation.realestateconsulting.model.entity.Expert;
 import com.graduation.realestateconsulting.model.entity.WorkingTimes;
 import org.mapstruct.*;
-
 import java.util.List;
 
 @Mapper(uses = {ExpertMapper.class})
