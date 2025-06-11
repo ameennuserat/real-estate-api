@@ -1,12 +1,10 @@
 package com.graduation.realestateconsulting.model.dto.response;
 
 import com.graduation.realestateconsulting.model.enums.Role;
+import com.graduation.realestateconsulting.model.enums.UserStatus;
 import lombok.*;
 
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 @Builder
 public class UserResponse {
     private Long id;
@@ -17,5 +15,6 @@ public class UserResponse {
     private String fcmToken;
     private boolean enabled;
     private Role role;
+    private UserStatus status;
     private String imageUrl;
 }

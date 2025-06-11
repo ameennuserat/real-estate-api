@@ -5,6 +5,7 @@ import com.graduation.realestateconsulting.model.dto.request.ExpertRequest;
 import com.graduation.realestateconsulting.model.dto.response.ExpertResponse;
 import com.graduation.realestateconsulting.model.entity.Expert;
 import com.graduation.realestateconsulting.model.entity.User;
+import com.graduation.realestateconsulting.model.enums.UserStatus;
 import com.graduation.realestateconsulting.model.mapper.ExpertMapper;
 import com.graduation.realestateconsulting.repository.ExpertRepository;
 import com.graduation.realestateconsulting.services.ImageService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.graduation.realestateconsulting.services.ExpertService;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,11 @@ public class ExpertServiceImpl implements ExpertService{
     @Override
     public Page<ExpertResponse> findAll(Pageable pageable) {
         return repository.findAll(pageable).map(mapper::toDto);
+    }
+
+    @Override
+    public List<ExpertResponse> findAllByUserStatus(UserStatus status) {
+        return mapper.toDtos(repository.findAllByUserStatus(status));
     }
 
     @Override

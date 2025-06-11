@@ -4,16 +4,19 @@ import com.graduation.realestateconsulting.config.JwtService;
 import com.graduation.realestateconsulting.model.dto.request.UserImageRequest;
 import com.graduation.realestateconsulting.model.dto.response.UserResponse;
 import com.graduation.realestateconsulting.model.entity.User;
+import com.graduation.realestateconsulting.model.enums.UserStatus;
 import com.graduation.realestateconsulting.model.mapper.UserMapper;
 import com.graduation.realestateconsulting.repository.UserRepository;
 import com.graduation.realestateconsulting.services.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.graduation.realestateconsulting.services.UserService;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,5 +47,16 @@ public class UserServiceImpl implements UserService{
         User currentUser = (User) authentication.getPrincipal();
 
         return mapper.toDto(currentUser);
+    }
+
+    @Override
+    public UserResponse updateStatus(Long id, UserStatus status) {
+        Optional<User> user = userRepository.findById(id);
+        if(user.isPresent()) {
+            user.get().setStatus(status);
+            userRepository.save(user.get());
+            return mapper.toDto(user.get());
+        }
+        throw new IllegalArgumentException("user not found");
     }
 }

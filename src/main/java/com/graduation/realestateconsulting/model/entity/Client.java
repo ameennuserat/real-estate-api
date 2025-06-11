@@ -22,7 +22,6 @@ public class Client {
     private User user;
 
     private String favorites;
-
     private String following;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
@@ -30,4 +29,5 @@ public class Client {
 
     @OneToMany(mappedBy = "client",cascade = CascadeType.ALL)
     private List<Booking> booking;
+
 }
