@@ -60,6 +60,10 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Expert expert;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Booking> booking;
+
+
 
     @CreationTimestamp
     private LocalDateTime createdAt;

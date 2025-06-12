@@ -1,5 +1,5 @@
 package com.graduation.realestateconsulting.model.enums;
 
 public enum CallType {
-    AUDIO,VIDEO
+    AUDIO,VIDEO,BOTH
 }

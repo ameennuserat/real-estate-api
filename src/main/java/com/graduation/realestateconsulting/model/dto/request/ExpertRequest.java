@@ -9,4 +9,6 @@ public class ExpertRequest {
     private String profession;
     private String experience;
     private String bio;
+    private Double perMinuteVideo;
+    private Double perMinuteAudio;
 }

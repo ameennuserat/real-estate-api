@@ -24,4 +24,10 @@ public class Client {
     private String favorites;
     private String following;
 
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<BookingFeedback> bookingFeedback;
+
+    @OneToMany(mappedBy = "client",cascade = CascadeType.ALL)
+    private List<Booking> booking;
+
 }

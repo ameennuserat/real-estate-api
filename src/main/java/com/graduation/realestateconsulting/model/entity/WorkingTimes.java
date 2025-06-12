@@ -26,7 +26,7 @@ public class WorkingTimes {
     @Column(name = "day", nullable = false)
     private DayOfWeek dayOfWeek;
 
-    @Column(name = "call_type")
+    @Column(name = "booking_type")
     private CallType callType;;
 
     @Column(name = "start_time")

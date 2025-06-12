@@ -3,6 +3,7 @@ package com.graduation.realestateconsulting.controller;
 import com.graduation.realestateconsulting.model.dto.request.ExpertImageRequest;
 import com.graduation.realestateconsulting.model.dto.request.ExpertRequest;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
+import com.graduation.realestateconsulting.model.enums.UserStatus;
 import com.graduation.realestateconsulting.services.ExpertService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,15 @@ public class ExpertController {
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
                 .data(service.findAll(pageable))
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<?> findAllByUserStatus(@RequestParam(name = "status") UserStatus status) {
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(service.findAllByUserStatus(status))
                 .build();
         return ResponseEntity.ok(response);
     }
