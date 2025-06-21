@@ -33,6 +33,7 @@ public class SecurityConfig {
                                         "/swagger-ui.html",
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
+                                        "/api/stripe/webhook",
                                         "/swagger-resources/**",
                                         "/swagger-resources",
                                         "/webjars/**"

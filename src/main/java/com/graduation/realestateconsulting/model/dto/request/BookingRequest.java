@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -20,7 +20,13 @@ public class BookingRequest {
     private Long clientId;
     private CallType callType;
     private int duration;
-    @Schema(type = "string", example = "12:00", description = "Start time in HH:mm format")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
-    private LocalTime startDate;
+    @Schema(
+            type = "string",
+            example = "2025-06-18T12:00",
+            description = "Start date and time in yyyy-MM-dd'T'HH:mm format "
+    )
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime startDate;
+    @Schema(description = "Optional coupon code to apply for a discount.", example = "SAVE20")
+    private String couponCode;
 }

@@ -41,15 +41,15 @@ public class WorkingTimesServiceImpl implements WorkingTimesService {
     }
 
     @Override
-    public WorkingTimesResponse getWorkingTimes(Long id) {
+    public WorkingTimesResponse getWorkingTime(Long id) {
         WorkingTimes workingTimes = workingTimesRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("working times not found"));
         return workingTimesMapper.toDto(workingTimes);
     }
 
     @Override
-    public List<WorkingTimesResponse> getWorkingTimes() {
-        User user = userRepository.findByEmail(jwtService.getCurrentUserName()).orElseThrow(() -> new IllegalArgumentException("user not found"));
-        List<WorkingTimes> workingTimes = workingTimesRepository.findByExpert_Id(user.getId());
+    public List<WorkingTimesResponse> getWorkingTimes(Long id) {
+       // User user = userRepository.findByEmail(jwtService.getCurrentUserName()).orElseThrow(() -> new IllegalArgumentException("user not found"));
+        List<WorkingTimes> workingTimes = workingTimesRepository.findByExpert_Id(id);
         return workingTimesMapper.toDto(workingTimes);
     }
 

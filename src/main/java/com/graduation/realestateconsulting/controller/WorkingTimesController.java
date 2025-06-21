@@ -56,18 +56,20 @@ public class WorkingTimesController {
     }
 
     @Operation(
-            summary = "Get all working times",
+            summary = "Get all working times by expertId.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Successfully retrieved",
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = GlobalResponse.class)))
             }
     )
-    @GetMapping
-    public ResponseEntity<GlobalResponse> getAllWorkingTimes() {
+    @GetMapping("all/{id}")
+    public ResponseEntity<GlobalResponse> getAllWorkingTimes(
+            @Parameter(description = "Expert ID", example = "5")
+            @PathVariable Long id) {
         GlobalResponse response = GlobalResponse.builder()
                 .status("success")
-                .data(workingTimesService.getWorkingTimes())
+                .data(workingTimesService.getWorkingTimes(id))
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -86,7 +88,7 @@ public class WorkingTimesController {
     ) {
         GlobalResponse response = GlobalResponse.builder()
                 .status("success")
-                .data(workingTimesService.getWorkingTimes(id))
+                .data(workingTimesService.getWorkingTime(id))
                 .build();
         return ResponseEntity.ok(response);
     }
