@@ -10,8 +10,8 @@ import java.util.List;
 @Service
 public interface WorkingTimesService {
     List<WorkingTimesResponse> createWorkingTimes(Long id,List<WorkingTimesRequest> workingTimesRequest);
-    WorkingTimesResponse getWorkingTimes(Long id);
-    List<WorkingTimesResponse> getWorkingTimes();
+    WorkingTimesResponse getWorkingTime(Long id);
+    List<WorkingTimesResponse> getWorkingTimes(Long id);
     WorkingTimesResponse updateWorkingTime(Long id, WorkingTimesRequest workingTimesRequest);
     void deleteWorkingTime(Long id);
 }

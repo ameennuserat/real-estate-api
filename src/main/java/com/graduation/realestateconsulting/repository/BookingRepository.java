@@ -1,5 +1,7 @@
 package com.graduation.realestateconsulting.repository;
 
+import com.graduation.realestateconsulting.model.entity.Client;
+import com.graduation.realestateconsulting.model.entity.Expert;
 import com.graduation.realestateconsulting.model.enums.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.graduation.realestateconsulting.model.entity.Booking;
@@ -12,7 +14,9 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByExpertIdAndStartTimeBeforeAndEndTimeAfterAndBookingStatusNot(Long expertId, LocalDateTime startDate, LocalDateTime endDate, BookingStatus status);
-    List<Booking> findAllByExpertIdAndBookingStatus(Long expertId,BookingStatus status);
+
+    List<Booking> findAllByExpertIdAndBookingStatus(Long expertId, BookingStatus status);
+
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.expert.id = :expertId " +
             "AND b.bookingStatus = :status " +
             "AND b.startTime < :requestedSlotEnd " +
@@ -23,4 +27,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("requestedSlotEnd") LocalDateTime requestedSlotEnd,
             @Param("status") BookingStatus status
     );
+
+    Long countByClientAndExpertAndBookingStatus(Client client, Expert expert, BookingStatus status);
 }

@@ -6,6 +6,7 @@ import com.graduation.realestateconsulting.model.dto.response.ExceptionResponse;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
 import com.graduation.realestateconsulting.model.enums.BookingStatus;
 import com.graduation.realestateconsulting.services.BookingService;
+import com.stripe.exception.StripeException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,9 +35,9 @@ public class BookingController {
             }
     )
     @PostMapping
-    public ResponseEntity<?> save(@RequestBody BookingRequest request) throws IllegalAccessException {
+    public ResponseEntity<?> save(@RequestBody BookingRequest request) throws IllegalAccessException, StripeException {
         GlobalResponse response = GlobalResponse.builder()
-                .data(bookingService.book(request))
+                .data(bookingService.initiateBooking(request))
                 .status("SUCCESS")
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -77,7 +78,7 @@ public class BookingController {
             }
     )
     @PostMapping("cancelled-with")
-    public ResponseEntity<?> calledWithRefund(@RequestBody CancleRequest request) throws IllegalAccessException {
+    public ResponseEntity<?> calledWithRefund(@RequestBody CancleRequest request) throws IllegalAccessException, StripeException {
         GlobalResponse globalResponse = GlobalResponse.builder()
                 .status("SUCCESS")
                 .data(bookingService.cancleBookingWithRefundMony(request))

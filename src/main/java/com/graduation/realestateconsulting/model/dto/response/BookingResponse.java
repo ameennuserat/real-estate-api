@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.mapstruct.control.MappingControl;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -16,9 +17,14 @@ public class BookingResponse {
     private Long id;
     private ClientResponse client;
     private ExpertResponse expert;
+    private String clientSecret;
     private CallType callType;
     private int duration;
-    private Double bookingCost;
+
+    private BigDecimal originalPrice;
+    private BigDecimal discountAmount;
+    private BigDecimal finalPrice;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private BookingStatus bookingStatus;
