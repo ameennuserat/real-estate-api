@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 //import java.security.Timestamp;
+import java.math.BigDecimal;
 import java.security.Timestamp;
 import java.time.LocalDateTime;
 
@@ -52,8 +53,15 @@ public class Booking {
     @Column(name = "booking_type", nullable = false)
     private CallType callType;
 
-    @Column(name = "booking_cost")
-    private Double bookingCost;
+
+    @Column(name = "original_price", precision = 10, scale = 2)
+    private BigDecimal originalPrice;
+
+    @Column(name = "discount_amount", precision = 10, scale = 2)
+    private BigDecimal discountAmount;
+
+    @Column(name = "final_price", precision = 10, scale = 2)
+    private BigDecimal finalPrice;
 
     @CreationTimestamp
     private LocalDateTime scheduled_at;
@@ -63,19 +71,25 @@ public class Booking {
     @Column(name = "cancellation_reason")
     private String cancellationReason;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "expert_id", referencedColumnName = "id")
     private Expert expert;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", referencedColumnName = "id")
     private Client client;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id", referencedColumnName = "id")
+    private CouponEntity coupon;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cancelled_by", referencedColumnName = "id")
     private User user;
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private BookingFeedback bookingFeedback;
 
+    @Column(name = "payment_intent_id")
+    private String paymentIntentId;
 }
