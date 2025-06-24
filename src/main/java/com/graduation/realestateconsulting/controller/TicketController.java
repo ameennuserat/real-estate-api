@@ -2,6 +2,8 @@ package com.graduation.realestateconsulting.controller;
 
 import com.graduation.realestateconsulting.model.dto.request.TicketRequest;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
+import com.graduation.realestateconsulting.model.enums.HouseType;
+import com.graduation.realestateconsulting.model.enums.ServiceType;
 import com.graduation.realestateconsulting.services.TicketService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,11 +38,25 @@ public class TicketController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/filters")
+    @Operation(summary = "Get all tickets by filters", description = "Retrieves a list of tickets")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved ticket list")
+    public ResponseEntity<?> findByFilters(@RequestParam(required = false) Double lowPrice,
+                                           @RequestParam(required = false) Double highPrice,
+                                           @RequestParam(required = false) ServiceType serviceType,
+                                           @RequestParam(required = false) HouseType houseType,
+                                           @RequestParam(required = false) String lowArea,
+                                           @RequestParam(required = false) String highArea,
+                                           @RequestParam(required = false) String location) {
+        GlobalResponse response = GlobalResponse.builder().status("success").data(service.findByFilters(lowPrice, highPrice, serviceType, houseType, lowArea, highArea, location)).build();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/client/{clientId}")
     @Operation(summary = "Get tickets by client ID", description = "Retrieves a paginated list of tickets for a specific client")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Successfully retrieved tickets for the client", content = @Content(schema = @Schema(implementation = GlobalResponse.class))), @ApiResponse(responseCode = "404", description = "Client not found")})
-    public ResponseEntity<?> findAllByOfficeId(@PageableDefault Pageable pageable, @Parameter(description = "ID of the client", required = true, example = "123") @PathVariable Long clientId) {
-        GlobalResponse response = GlobalResponse.builder().status("success").data(service.findAllByOfficeId(pageable, clientId)).build();
+    public ResponseEntity<?> findAllByClientId(@PageableDefault Pageable pageable, @Parameter(description = "ID of the client", required = true, example = "123") @PathVariable Long clientId) {
+        GlobalResponse response = GlobalResponse.builder().status("success").data(service.findAllByClientId(pageable, clientId)).build();
         return ResponseEntity.ok(response);
     }
 
