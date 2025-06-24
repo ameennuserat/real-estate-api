@@ -2,8 +2,11 @@ package com.graduation.realestateconsulting.services.implement;
 
 import com.graduation.realestateconsulting.model.dto.request.PropertyRequest;
 import com.graduation.realestateconsulting.model.dto.response.PropertyResponse;
+import com.graduation.realestateconsulting.model.dto.response.TicketResponse;
 import com.graduation.realestateconsulting.model.entity.Property;
 import com.graduation.realestateconsulting.model.entity.PropertyImage;
+import com.graduation.realestateconsulting.model.enums.HouseType;
+import com.graduation.realestateconsulting.model.enums.ServiceType;
 import com.graduation.realestateconsulting.model.mapper.PropertyImageMapper;
 import com.graduation.realestateconsulting.model.mapper.PropertyMapper;
 import com.graduation.realestateconsulting.repository.PropertyRepository;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.graduation.realestateconsulting.services.PropertyService;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,12 @@ public class PropertyServiceImpl implements PropertyService {
     public Page<PropertyResponse> findAll(Pageable pageable) {
         return repository.findAll(pageable).map(mapper::toDto);
     }
+
+    @Override
+    public List<PropertyResponse> findByFilters(Double lowPrice, Double highPrice, ServiceType serviceType, HouseType houseType, String lowArea, String highArea, String location) {
+        return mapper.toDtos(repository.findByFilters(lowPrice, highPrice, serviceType, houseType, lowArea, highArea, location));
+    }
+
 
     @Override
     public Page<PropertyResponse> findAllByOfficeId(Pageable pageable, Long officeId) {
