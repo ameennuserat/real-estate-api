@@ -10,7 +10,7 @@ import java.util.List;
 public interface ClientMapper {
 
     @Mapping(target = "favorites",source = "favorites",qualifiedByName = "convertStringToListOfInteger")
-    @Mapping(target = "following",source = "following",qualifiedByName = "convertStringToListOfInteger")
+    @Mapping(target = "followers",source = "followers",qualifiedByName = "convertStringToListOfInteger")
     ClientResponse toDto(Client entity);
 
     List<ClientResponse> toDtos(List<Client> entities);

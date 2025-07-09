@@ -12,7 +12,15 @@ import java.util.List;
 @Mapper(uses = {AppMapper.class,ClientMapper.class})
 public interface TicketMapper {
 
+    @Mapping(target = "client.id",source = "client.id")
+    @Mapping(target = "client.userId",source = "client.user.id")
+    @Mapping(target = "client.firstName",source = "client.user.firstName")
+    @Mapping(target = "client.lastName",source = "client.user.lastName")
+    @Mapping(target = "client.email",source = "client.user.email")
+    @Mapping(target = "client.phone",source = "client.user.phone")
+    @Mapping(target = "client.imageUrl",source = "client.user.imageUrl",qualifiedByName = "addPrefixToImageUrl")
     TicketResponse toDto(Ticket entity);
+
     List<TicketResponse> toDtos(List<Ticket> entities);
 
 

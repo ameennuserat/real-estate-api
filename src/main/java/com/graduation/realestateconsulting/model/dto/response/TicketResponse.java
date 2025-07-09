@@ -25,6 +25,6 @@ public class TicketResponse {
     private int numberOfBathrooms;
     private LocalDateTime dateTime;
 
-    private ClientResponse client;
+    private TicketClientResponse client;
 
 }

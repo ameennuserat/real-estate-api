@@ -22,7 +22,7 @@ public class SecurityConfiguration {
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> userRepo.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username + "not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(username + " not found"));
     }
 
     @Bean

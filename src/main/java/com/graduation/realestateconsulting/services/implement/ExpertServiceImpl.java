@@ -8,6 +8,7 @@ import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.UserStatus;
 import com.graduation.realestateconsulting.model.mapper.ExpertMapper;
 import com.graduation.realestateconsulting.repository.ExpertRepository;
+import com.graduation.realestateconsulting.services.ExpertService;
 import com.graduation.realestateconsulting.services.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import com.graduation.realestateconsulting.services.ExpertService;
 
 import java.io.IOException;
 import java.util.List;
@@ -93,6 +93,22 @@ public class ExpertServiceImpl implements ExpertService{
 
         repository.save(expert);
     }
+
+//    @Override
+//    public void updateExpertFollowerCount(Long id, Integer value) {
+//        Expert expert = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
+//        Integer count = expert.getFollowersCount() == null ? 0 : expert.getFollowersCount();
+//        expert.setFollowersCount(count + value);
+//        repository.save(expert);
+//    }
+//
+//    @Override
+//    public void updateExpertFavoriteCount(Long id, Integer value) {
+//        Expert expert = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
+//        Integer count = expert.getFavoritesCount() == null ? 0 : expert.getFavoritesCount();
+//        expert.setFavoritesCount(count + value);
+//        repository.save(expert);
+//    }
 
 
 }

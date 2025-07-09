@@ -42,6 +42,10 @@ public class Expert {
     @Column(name = "id_card_image")
     private String idCardImage;
 
+    private Integer followersCount;
+
+    private Integer favoritesCount;
+
     @NotBlank(message =  "DegreeCertificateImage must not be blank")
     @Column(name = "degree_certificate_image")
     private String degreeCertificateImage;

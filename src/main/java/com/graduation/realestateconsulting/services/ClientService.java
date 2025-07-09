@@ -12,9 +12,11 @@ public interface ClientService {
 
     ClientResponse getMe();
 
-    void addFollow(Long id);
+    void addFollower(Long id);
+
     void addFavorite(Long id);
 
-    void deleteFollow(Long id);
+    void deleteFollower(Long id);
+
     void deleteFavorite(Long id);
 }

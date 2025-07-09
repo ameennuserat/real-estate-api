@@ -2,9 +2,11 @@ package com.graduation.realestateconsulting.services.implement;
 
 import com.graduation.realestateconsulting.model.dto.response.ClientResponse;
 import com.graduation.realestateconsulting.model.entity.Client;
+import com.graduation.realestateconsulting.model.entity.Expert;
 import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.mapper.ClientMapper;
 import com.graduation.realestateconsulting.repository.ClientRepository;
+import com.graduation.realestateconsulting.repository.ExpertRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,11 +15,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.graduation.realestateconsulting.services.ClientService;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
-public class ClientServiceImpl implements ClientService{
+public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository repository;
+    private final ExpertRepository expertRepository;
     private final ClientMapper mapper;
 
     @Override
@@ -39,71 +45,110 @@ public class ClientServiceImpl implements ClientService{
     }
 
     @Override
-    public void addFollow(Long id) {
-        Client client = getCurrentClient();
-        String followIds = client.getFollowing();
+    public void addFollower(Long id) {
+        Expert expert = expertRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
 
-        if(followIds == null ||followIds.isEmpty()) {
-            followIds = id.toString();
-        }else{
-            followIds += ","+id;
+        Client client = getCurrentClient();
+        String followIds = client.getFollowers();
+
+        if (isIdFoundInList(followIds, id)) {
+            throw new IllegalArgumentException("You are already followed this expert");
         }
-        client.setFollowing(followIds);
+
+        String updatedFollowIds = followIds == null || followIds.isEmpty() ? id.toString() : followIds + "," + id;
+
+        client.setFollowers(updatedFollowIds);
         repository.save(client);
+
+        updateExpertFollowerCount(expert, 1);
     }
 
     @Override
     public void addFavorite(Long id) {
+        Expert expert = expertRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
+
         Client client = getCurrentClient();
         String favoriteIds = client.getFavorites();
 
-        if(favoriteIds == null || favoriteIds.isEmpty()) {
-            favoriteIds = id.toString();
-        }else{
-            favoriteIds += ","+id;
+        if (isIdFoundInList(favoriteIds, id)) {
+            throw new IllegalArgumentException("You are already favorite this expert");
         }
-        client.setFavorites(favoriteIds);
+
+        String updatedFavoriteIds = favoriteIds == null || favoriteIds.isEmpty() ? id.toString() : favoriteIds + "," + id;
+
+        client.setFavorites(updatedFavoriteIds);
         repository.save(client);
 
+        updateExpertFavoriteCount(expert, 1);
     }
 
     @Override
-    public void deleteFollow(Long id) {
+    public void deleteFollower(Long id) {
+        Expert expert = expertRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
+
         Client client = getCurrentClient();
-        String followIds = client.getFollowing();
+        String followIds = client.getFollowers();
 
-        // remove from end
-        followIds = followIds.replaceAll(","+id, "");
+        if (!isIdFoundInList(followIds, id)) {
+            throw new IllegalArgumentException("You are not followed this expert");
+        }
 
-        // remove from start
-        followIds = followIds.replaceAll(id+",", "");
+        String updatedFollowerIds = removeIdFromList(followIds, id);
 
-        client.setFollowing(followIds);
+        client.setFollowers(updatedFollowerIds);
         repository.save(client);
+
+        updateExpertFollowerCount(expert, -1);
     }
 
     @Override
     public void deleteFavorite(Long id) {
+        Expert expert = expertRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
+
         Client client = getCurrentClient();
         String favoriteIds = client.getFavorites();
 
-        // remove from end
-        favoriteIds = favoriteIds.replaceAll(","+id, "");
+        if (!isIdFoundInList(favoriteIds, id)) {
+            throw new IllegalArgumentException("You are not favorite this expert");
+        }
 
-        // remove from start
-        favoriteIds = favoriteIds.replaceAll(id+",", "");
+        String updatedFavoriteIds = removeIdFromList(favoriteIds, id);
 
-        client.setFavorites(favoriteIds);
+        client.setFavorites(updatedFavoriteIds);
         repository.save(client);
+
+        updateExpertFavoriteCount(expert, -1);
     }
 
-    private User getCurrentUser(){
+    private User getCurrentUser() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    private Client getCurrentClient(){
+    private Client getCurrentClient() {
         User user = getCurrentUser();
         return repository.findByUserId(user.getId()).orElseThrow(() -> new IllegalArgumentException("Client not found"));
     }
 
+    private boolean isIdFoundInList(String list, Long idToCheck) {
+        if (list == null || list.isEmpty()) {
+            return false;
+        }
+        return Arrays.asList(list.split(",")).contains(idToCheck.toString());
+    }
+
+    private String removeIdFromList(String list, Long idToRemove) {
+        return Arrays.stream(list.split(",")).filter(id -> !id.equals(idToRemove.toString())).collect(Collectors.joining(","));
+    }
+
+    private void updateExpertFollowerCount(Expert expert, Integer value) {
+        Integer count = expert.getFollowersCount() == null ? 0 : expert.getFollowersCount();
+        expert.setFollowersCount(count + value);
+        expertRepository.save(expert);
+    }
+
+    private void updateExpertFavoriteCount(Expert expert, Integer value) {
+        Integer count = expert.getFavoritesCount() == null ? 0 : expert.getFavoritesCount();
+        expert.setFavoritesCount(count + value);
+        expertRepository.save(expert);
+    }
 }
