@@ -1,16 +1,15 @@
 package com.graduation.realestateconsulting.model.dto.request;
 
-import com.graduation.realestateconsulting.model.enums.PropertyImageType;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
-public class PropertyImageRequest {
+public class PostsRequest {
 
-    private Long propertyId;
+    private Long expertId;
+    private String content;
     private MultipartFile image;
-    private PropertyImageType type;
 
 }

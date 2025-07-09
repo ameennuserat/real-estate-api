@@ -17,7 +17,7 @@ public interface PropertyImageMapper {
     List<PropertyImageResponse> toDtos(List<PropertyImage> entities);
 
 
-    @Mapping(target ="imageUrl",source = "imageUrl" ,qualifiedByName = "uploadImage")
+    @Mapping(target ="imageUrl",source = "image" ,qualifiedByName = "uploadImage")
     @Mapping(target = "property", source = "propertyId" , qualifiedByName = "getPropertyById")
     PropertyImage toEntity(PropertyImageRequest request);
 
