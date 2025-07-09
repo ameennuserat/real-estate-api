@@ -2,9 +2,11 @@ package com.graduation.realestateconsulting.model.mapper;
 
 
 import com.graduation.realestateconsulting.model.entity.Client;
+import com.graduation.realestateconsulting.model.entity.Expert;
 import com.graduation.realestateconsulting.model.entity.Office;
 import com.graduation.realestateconsulting.model.entity.Property;
 import com.graduation.realestateconsulting.repository.ClientRepository;
+import com.graduation.realestateconsulting.repository.ExpertRepository;
 import com.graduation.realestateconsulting.repository.OfficeRepository;
 import com.graduation.realestateconsulting.repository.PropertyRepository;
 import com.graduation.realestateconsulting.services.ImageService;
@@ -33,6 +35,9 @@ public abstract class AppMapper {
 
     @Autowired
     private PropertyRepository propertyRepository;
+
+    @Autowired
+    private ExpertRepository expertRepository;
 
     @Autowired
     private ImageService imageService;
@@ -71,6 +76,11 @@ public abstract class AppMapper {
     @Named("getOfficeById")
     public Office getOfficeById(Long id) {
         return officeRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("Office not found"));
+    }
+
+    @Named("getExpertById")
+    public Expert getExpertById(Long id) {
+        return expertRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("Expert not found"));
     }
 
     @Named("getPropertyById")
