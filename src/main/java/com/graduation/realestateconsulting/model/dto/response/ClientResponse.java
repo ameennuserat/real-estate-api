@@ -13,6 +13,6 @@ public class ClientResponse {
     private UserResponse user;
 
     private List<Integer> favorites;
-    private List<Integer> following;
+    private List<Integer> followers;
 
 }

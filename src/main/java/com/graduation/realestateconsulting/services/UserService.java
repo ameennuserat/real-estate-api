@@ -12,8 +12,9 @@ public interface UserService {
 
     void uploadImage(UserImageRequest request) throws IOException;
 
-
     UserResponse getMe();
 
     UserResponse updateStatus(Long id, UserStatus status);
+
+    void deleteById(Long id);
 }

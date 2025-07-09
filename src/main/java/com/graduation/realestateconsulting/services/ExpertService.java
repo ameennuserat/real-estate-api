@@ -24,4 +24,8 @@ public interface ExpertService {
 
     void uploadImage(ExpertImageRequest request) throws IOException;
 
+//    void updateExpertFollowerCount(Long id,Integer value);
+//
+//    void updateExpertFavoriteCount(Long id,Integer value);
+
 }

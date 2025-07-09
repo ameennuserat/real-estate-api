@@ -9,7 +9,6 @@ import java.util.List;
 @Builder
 public class PropertyResponse {
 
-//    private Office office;
 
     private Long id;
     private String description;
@@ -27,5 +26,6 @@ public class PropertyResponse {
     private double longitude;
 
     private List<PropertyImageResponse> propertyImageList;
+    private PropertyOfficeResponse office;
 
 }

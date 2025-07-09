@@ -45,5 +45,15 @@ public class UserController {
     }
 
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable Long id){
+        userService.deleteById(id);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data("message => User deleted successfully").build();
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }

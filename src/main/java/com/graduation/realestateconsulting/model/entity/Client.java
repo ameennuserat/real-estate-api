@@ -22,7 +22,10 @@ public class Client {
     private User user;
 
     private String favorites;
-    private String following;
+    private String followers;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
+    private List<Ticket> ticketList;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
     private List<BookingFeedback> bookingFeedback;
