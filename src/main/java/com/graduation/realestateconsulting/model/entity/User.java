@@ -71,6 +71,12 @@ public class User implements UserDetails {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Column(name = "is_blocked", nullable = false)
+    private boolean isBlocked = false;
+
+    @Column(name = "block_expires_at")
+    private LocalDateTime blockExpiresAt;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

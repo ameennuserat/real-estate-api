@@ -81,7 +81,8 @@ public class BookingServiceImpl implements BookingService {
 
 
     private void validateTimeSlot(Long expertId, LocalDateTime startTime, LocalDateTime endTime) {
-        if (bookingRepository.countConflictingBookings(expertId, startTime, endTime, BookingStatus.CONFIRMED) > 0) {
+        List<BookingStatus> conflictingStatuses = List.of(BookingStatus.CONFIRMED, BookingStatus.PENDING);
+        if (bookingRepository.countConflictingBookings(expertId, startTime, endTime, conflictingStatuses) > 0) {
             throw new IllegalStateException("This time slot has just been booked. Please choose another time slot.");
         }
     }
@@ -109,11 +110,17 @@ public class BookingServiceImpl implements BookingService {
 
         if (coupon.getDiscountType() == DiscountType.PERCENTAGE) {
             BigDecimal percentageValue = coupon.getDiscountValue();
-            BigDecimal discountMultiplier = percentageValue.divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-            BigDecimal discountAmount = originalPrice.multiply(discountMultiplier);
-            finalPrice = originalPrice.subtract(discountAmount);
+
+            BigDecimal discountAmountRaw = originalPrice.multiply(percentageValue);
+
+            BigDecimal discountAmountWithHighPrecision = discountAmountRaw.divide(new BigDecimal("100"));
+
+            BigDecimal roundedDiscountAmount = discountAmountWithHighPrecision.setScale(2, RoundingMode.HALF_UP);
+
+            finalPrice = originalPrice.subtract(roundedDiscountAmount);
 
         } else if (coupon.getDiscountType() == DiscountType.FIXED_AMOUNT) {
+
             BigDecimal fixedAmount = coupon.getDiscountValue();
             finalPrice = originalPrice.subtract(fixedAmount);
         } else {
