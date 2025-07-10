@@ -2,6 +2,7 @@ package com.graduation.realestateconsulting.services;
 
 import com.graduation.realestateconsulting.model.dto.request.CreateReportRequest;
 import com.graduation.realestateconsulting.model.dto.request.ReportSearchCriteria;
+import com.graduation.realestateconsulting.model.dto.response.ExpertReportSummaryResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportCategoryResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportResponse;
 import com.graduation.realestateconsulting.model.entity.ReportCategory;
@@ -32,4 +33,6 @@ public interface ReportService {
     void processDeleteAction(Long reportId);
 
     Page<ReportResponse> searchReports(ReportSearchCriteria criteria, Pageable pageable);
+
+    public Page<ExpertReportSummaryResponse> getFrequentlyReportedExperts(Pageable pageable);
 }

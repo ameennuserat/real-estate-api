@@ -3,6 +3,7 @@ package com.graduation.realestateconsulting.controller;
 import com.graduation.realestateconsulting.model.dto.request.CreateReportRequest;
 import com.graduation.realestateconsulting.model.dto.request.ReportSearchCriteria;
 import com.graduation.realestateconsulting.model.dto.response.ExceptionResponse;
+import com.graduation.realestateconsulting.model.dto.response.ExpertReportSummaryResponse;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportResponse;
 import com.graduation.realestateconsulting.model.entity.ReportCategory;
@@ -189,6 +190,28 @@ public class ReportController {
                 .status("Success")
                 .data(reports.getContent())
                 .build();
+        return ResponseEntity.ok(globalResponse);
+    }
+
+
+    @Operation(
+            summary = "Get frequently reported experts (Admin only)",
+            description = "Returns a paginated list of experts, sorted by the number of reports against them in descending order."
+    )
+    @GetMapping("/frequently-reported")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> getFrequentlyReportedExperts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size // نعرض 5 خبراء في كل صفحة مثلاً
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ExpertReportSummaryResponse> result = reportService.getFrequentlyReportedExperts(pageable);
+
+        GlobalResponse globalResponse = GlobalResponse.builder()
+                .status("Success")
+                .data(result.getContent())
+                .build();
+
         return ResponseEntity.ok(globalResponse);
     }
 }
