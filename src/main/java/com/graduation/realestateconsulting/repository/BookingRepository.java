@@ -18,14 +18,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByExpertIdAndBookingStatus(Long expertId, BookingStatus status);
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.expert.id = :expertId " +
-            "AND b.bookingStatus = :status " +
+            "AND b.bookingStatus IN  :status " +
             "AND b.startTime < :requestedSlotEnd " +
             "AND b.endTime > :requestedSlotStart")
     long countConflictingBookings(
             @Param("expertId") Long expertId,
             @Param("requestedSlotStart") LocalDateTime requestedSlotStart,
             @Param("requestedSlotEnd") LocalDateTime requestedSlotEnd,
-            @Param("status") BookingStatus status
+            @Param("status") List<BookingStatus> status
     );
 
     Long countByClientAndExpertAndBookingStatus(Client client, Expert expert, BookingStatus status);

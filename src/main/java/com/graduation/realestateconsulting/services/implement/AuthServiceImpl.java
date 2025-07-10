@@ -1,6 +1,7 @@
 package com.graduation.realestateconsulting.services.implement;
 
 import com.graduation.realestateconsulting.config.JwtService;
+import com.graduation.realestateconsulting.exceptions.newExceptions.AccountBlockedException;
 import com.graduation.realestateconsulting.model.dto.request.*;
 import com.graduation.realestateconsulting.model.dto.response.LoginResponse;
 import com.graduation.realestateconsulting.model.dto.response.RefreshTokenResponse;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 @Service
@@ -55,13 +57,23 @@ public class AuthServiceImpl implements AuthService {
         return "registered successfully";
     }
 
+
     @Override
     public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
                 () -> new IllegalArgumentException("user with email " + request.getEmail() + " is not found")
         );
+        if (user.isBlocked()) {
+            long remainingDays = ChronoUnit.DAYS.between(LocalDateTime.now(), user.getBlockExpiresAt()) + 1;
 
+            String message = String.format(
+                    "Your account is blocked. The block will be lifted in approximately %d day(s).",
+                    Math.max(1, remainingDays)
+            );
+
+            throw new AccountBlockedException(message);
+        }
         if(user.getStatus() != UserStatus.AVAILABLE){
             throw new IllegalArgumentException("user is "+ user.getStatus().name());
         }
