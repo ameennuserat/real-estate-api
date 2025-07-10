@@ -2,12 +2,14 @@ package com.graduation.realestateconsulting.services.implement;
 
 import com.graduation.realestateconsulting.model.dto.request.CreateReportRequest;
 import com.graduation.realestateconsulting.model.dto.request.ReportSearchCriteria;
+import com.graduation.realestateconsulting.model.dto.response.ExpertReportSummaryResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportCategoryResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportResponse;
 import com.graduation.realestateconsulting.model.entity.Report;
 import com.graduation.realestateconsulting.model.entity.ReportCategory;
 import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.mapper.ReportMapper;
+import com.graduation.realestateconsulting.model.mapper.UserMapper;
 import com.graduation.realestateconsulting.repository.ReportCategoryRepository;
 import com.graduation.realestateconsulting.repository.ReportRepository;
 import com.graduation.realestateconsulting.repository.UserRepository;
@@ -24,6 +26,8 @@ import com.graduation.realestateconsulting.services.ReportService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class ReportServiceImpl implements ReportService {
     private final UserRepository userRepository;
     private final ReportMapper reportMapper;
     private final UserManagementService userManagementService;
+    private final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -135,5 +140,44 @@ public class ReportServiceImpl implements ReportService {
         Page<Report> reportPage = reportRepository.findAll(spec, pageable);
 
         return reportPage.map(reportMapper::toDto);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ExpertReportSummaryResponse> getFrequentlyReportedExperts(Pageable pageable) {
+
+        // 1. جلب قائمة الخبراء الأكثر بلاغات مع الترقيم.
+        Page<Object[]> expertCountsPage = reportRepository.findFrequentlyReportedExperts(pageable);
+
+        // استخراج كائنات الخبراء من نتائج الصفحة الحالية.
+        List<User> expertsOnPage = expertCountsPage.getContent().stream()
+                .map(result -> (User) result[0])
+                .collect(Collectors.toList());
+
+        // 2. جلب جميع البلاغات لهؤلاء الخبراء في استعلام واحد فقط (لتجنب مشكلة N+1).
+        List<Report> reportsForExpertsOnPage = reportRepository.findByReportedUserIn(expertsOnPage);
+
+        // 3. تجميع البلاغات في خريطة (Map) ليسهل الوصول إليها، حيث يكون المفتاح هو الخبير.
+        Map<Long, List<ReportResponse>> reportsByExpertId = reportsForExpertsOnPage.stream()
+                .collect(Collectors.groupingBy(
+                        report -> report.getReportedUser().getId(),
+                        Collectors.mapping(reportMapper::toDto, Collectors.toList())
+                ));
+
+        // 4. بناء الاستجابة النهائية (صفحة من DTOs).
+        return expertCountsPage.map(result -> {
+            User expert = (User) result[0];
+            long reportCount = (Long) result[1];
+
+            // احصل على قائمة البلاغات الخاصة بهذا الخبير من الخريطة
+            List<ReportResponse> expertReports = reportsByExpertId.getOrDefault(expert.getId(), List.of());
+
+            return new ExpertReportSummaryResponse(
+                    userMapper.toDto(expert),
+                    reportCount,
+                    expertReports
+            );
+        });
     }
 }
