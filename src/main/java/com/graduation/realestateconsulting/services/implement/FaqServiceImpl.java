@@ -24,6 +24,11 @@ public class FaqServiceImpl implements FaqService {
     }
 
     @Override
+    public List<FaqResponse> findAllByCategoryId(Long categoryId) {
+        return mapper.toDtos(repository.findAllByFaqCategoryId(categoryId));
+    }
+
+    @Override
     public FaqResponse findById(Long id) {
         return repository.findById(id).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Faq not found"));
     }
@@ -31,6 +36,14 @@ public class FaqServiceImpl implements FaqService {
     @Override
     public FaqResponse save(FaqRequest request) {
         Faq faq = mapper.toEntity(request);
+        Faq saved = repository.save(faq);
+        return mapper.toDto(saved);
+    }
+
+    @Override
+    public FaqResponse update(Long id, FaqRequest request) {
+        Faq faq = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Faq not found"));
+        mapper.toEntity(faq,request);
         Faq saved = repository.save(faq);
         return mapper.toDto(saved);
     }

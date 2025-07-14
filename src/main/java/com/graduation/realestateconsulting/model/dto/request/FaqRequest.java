@@ -6,6 +6,7 @@ import lombok.*;
 @Builder
 public class FaqRequest {
 
+    private Long categoryId;
     private String question;
     private String answer;
 
