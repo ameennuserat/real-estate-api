@@ -1,14 +1,8 @@
 package com.graduation.realestateconsulting.model.mapper;
 
 
-import com.graduation.realestateconsulting.model.entity.Client;
-import com.graduation.realestateconsulting.model.entity.Expert;
-import com.graduation.realestateconsulting.model.entity.Office;
-import com.graduation.realestateconsulting.model.entity.Property;
-import com.graduation.realestateconsulting.repository.ClientRepository;
-import com.graduation.realestateconsulting.repository.ExpertRepository;
-import com.graduation.realestateconsulting.repository.OfficeRepository;
-import com.graduation.realestateconsulting.repository.PropertyRepository;
+import com.graduation.realestateconsulting.model.entity.*;
+import com.graduation.realestateconsulting.repository.*;
 import com.graduation.realestateconsulting.services.ImageService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;
@@ -35,6 +29,9 @@ public abstract class AppMapper {
 
     @Autowired
     private PropertyRepository propertyRepository;
+
+    @Autowired
+    private FaqCategoryRepository faqCategoryRepository;
 
     @Autowired
     private ExpertRepository expertRepository;
@@ -86,6 +83,11 @@ public abstract class AppMapper {
     @Named("getPropertyById")
     public Property getPropertyById(Long id) {
         return propertyRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("Property not found"));
+    }
+
+    @Named("getFaqCategoryById")
+    public FaqCategory getFaqCategoryById(Long id) {
+        return faqCategoryRepository.findById(id).orElseThrow(()-> new IllegalArgumentException("Faq Category not found"));
     }
 
     @Named("uploadImage")
