@@ -10,9 +10,13 @@ public interface FaqService {
 
     List<FaqResponse> findAll();
 
+    List<FaqResponse> findAllByCategoryId(Long categoryId);
+
     FaqResponse findById(Long id);
 
     FaqResponse save(FaqRequest request);
+
+    FaqResponse update(Long id, FaqRequest request);
 
     void delete(Long id);
 

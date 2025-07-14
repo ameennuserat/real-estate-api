@@ -5,6 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Setter
@@ -12,22 +14,18 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "faq")
-public class Faq {
+@Table(name = "faq_categories")
+public class FaqCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String question;
+    private String name;
 
-    private String answer;
-
-    @ManyToOne
-    @JoinColumn(name = "faq_category_id")
-    private FaqCategory faqCategory;
+    @OneToMany(mappedBy = "faqCategory", cascade = CascadeType.ALL)
+    private List<Faq> faqs = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 }

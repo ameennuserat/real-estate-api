@@ -1,34 +1,25 @@
 package com.graduation.realestateconsulting.controller;
 
-import com.graduation.realestateconsulting.model.dto.request.FaqRequest;
+import com.graduation.realestateconsulting.model.dto.request.FaqCategoryRequest;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
-import com.graduation.realestateconsulting.services.FaqService;
+import com.graduation.realestateconsulting.services.FaqCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/FAQs")
+@RequestMapping("/FAQ_categories")
 @RequiredArgsConstructor
-public class FaqController {
+public class FaqCategoryController {
 
-    private final FaqService service;
+    private final FaqCategoryService service;
 
     @GetMapping
     public ResponseEntity<?> findAll() {
         GlobalResponse response = GlobalResponse.builder()
                 .status("success")
                 .data(service.findAll())
-                .build();
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<?> findAllByCategoryId(@PathVariable Long categoryId) {
-        GlobalResponse response = GlobalResponse.builder()
-                .status("success")
-                .data(service.findAllByCategoryId(categoryId))
                 .build();
         return ResponseEntity.ok(response);
     }
@@ -42,7 +33,7 @@ public class FaqController {
     }
 
     @PostMapping
-    public ResponseEntity<?> save(@RequestBody FaqRequest request) {
+    public ResponseEntity<?> save(@RequestBody FaqCategoryRequest request) {
         GlobalResponse response = GlobalResponse.builder()
                 .status("success")
                 .data(service.save(request)).build();
@@ -50,7 +41,7 @@ public class FaqController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestBody FaqRequest request, @PathVariable Long id) {
+    public ResponseEntity<?> update(@RequestBody FaqCategoryRequest request, @PathVariable Long id) {
         GlobalResponse response = GlobalResponse.builder()
                 .status("success")
                 .data(service.update(id,request)).build();
@@ -62,7 +53,7 @@ public class FaqController {
         service.delete(id);
         GlobalResponse response = GlobalResponse.builder()
                 .status("success")
-                .data("Message => Faq deleted successfully").build();
+                .data("Message => FaqCategory deleted successfully").build();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 }

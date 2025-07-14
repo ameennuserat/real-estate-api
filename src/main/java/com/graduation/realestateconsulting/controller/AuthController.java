@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,9 +17,17 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @GetMapping(value = "/check-status/{userId}")
+    public ResponseEntity<?> checkStatus(@PathVariable Long userId) {
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(authService.checkUserStatus(userId))
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> register(@ModelAttribute @Valid RegisterRequest registerRequest) {
-        System.out.println("register");
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
                 .data(authService.register(registerRequest))

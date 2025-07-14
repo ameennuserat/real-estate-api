@@ -5,6 +5,7 @@ import com.graduation.realestateconsulting.exceptions.newExceptions.AccountBlock
 import com.graduation.realestateconsulting.model.dto.request.*;
 import com.graduation.realestateconsulting.model.dto.response.LoginResponse;
 import com.graduation.realestateconsulting.model.dto.response.RefreshTokenResponse;
+import com.graduation.realestateconsulting.model.dto.response.UserStatusResponse;
 import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.Role;
 import com.graduation.realestateconsulting.model.enums.UserStatus;
@@ -15,19 +16,19 @@ import com.graduation.realestateconsulting.observer.events.CreateOfficeEvent;
 import com.graduation.realestateconsulting.observer.events.GmailNotificationEvent;
 import com.graduation.realestateconsulting.repository.UserRepository;
 import com.graduation.realestateconsulting.services.AuthService;
-import com.graduation.realestateconsulting.trait.SendEmailMessage;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -39,6 +40,18 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final ApplicationEventPublisher publisher;
+
+    @Override
+    public UserStatusResponse checkUserStatus(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            return UserStatusResponse.builder()
+                    .id(user.get().getId())
+                    .userStatus(user.get().getStatus())
+                    .build();
+        }
+        throw new IllegalArgumentException("user not found");
+    }
 
     @Transactional
     @Override
@@ -61,21 +74,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse login(LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(
-                () -> new IllegalArgumentException("user with email " + request.getEmail() + " is not found")
-        );
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("user with email " + request.getEmail() + " is not found"));
         if (user.isBlocked()) {
             long remainingDays = ChronoUnit.DAYS.between(LocalDateTime.now(), user.getBlockExpiresAt()) + 1;
 
-            String message = String.format(
-                    "Your account is blocked. The block will be lifted in approximately %d day(s).",
-                    Math.max(1, remainingDays)
-            );
+            String message = String.format("Your account is blocked. The block will be lifted in approximately %d day(s).", Math.max(1, remainingDays));
 
             throw new AccountBlockedException(message);
         }
-        if(user.getStatus() != UserStatus.AVAILABLE){
-            throw new IllegalArgumentException("user is "+ user.getStatus().name());
+        if (user.getStatus() != UserStatus.AVAILABLE) {
+            throw new IllegalArgumentException("user is " + user.getStatus().name());
         }
 
         user.setFcmToken(request.getFcmToken());
@@ -84,27 +92,18 @@ public class AuthServiceImpl implements AuthService {
         String jwt = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        return LoginResponse.builder()
-                .user(userMapper.toDto(savedUser))
-                .token(jwt)
-                .refreshToken(refreshToken)
-                .build();
+        return LoginResponse.builder().user(userMapper.toDto(savedUser)).token(jwt).refreshToken(refreshToken).build();
     }
 
 
     @Override
     public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
         String username = jwtService.extractUsername(request.getRefreshToken());
-        User user = userRepository.findByEmail(username).orElseThrow(
-                () -> new IllegalArgumentException("user with email " + username + " is not found")
-        );
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new IllegalArgumentException("user with email " + username + " is not found"));
         if (jwtService.isTokenValid(request.getRefreshToken(), user)) {
             String jwt = jwtService.generateToken(user);
 
-            return RefreshTokenResponse.builder()
-                    .token(jwt)
-                    .refreshToken(request.getRefreshToken())
-                    .build();
+            return RefreshTokenResponse.builder().token(jwt).refreshToken(request.getRefreshToken()).build();
         }
         return null;
     }
@@ -113,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
     public void verificationAccount(VerificationRequest request) {
         log.info("verificationAccount");
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new IllegalArgumentException("Invalid email"));
-        log.info(user.getCreatedAt().toString()+"before calling");
+        log.info(user.getCreatedAt().toString() + "before calling");
         this.checkExpired(user.getCreatedAt());
         if (user.getVerificationCode().equals(request.getVerificationCode())) {
             user.setEnable(true);
@@ -141,19 +140,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void logout() {
-        User user = userRepository.findByEmail(jwtService.getCurrentUserName()).orElseThrow(() ->
-                new IllegalArgumentException("user not found"));
+        User user = userRepository.findByEmail(jwtService.getCurrentUserName()).orElseThrow(() -> new IllegalArgumentException("user not found"));
         user.setFcmToken(null);
         userRepository.save(user);
     }
 
     @Override
     public void checkExpired(LocalDateTime dateTime) {
-        log.info(dateTime.toString()+"after calling");
+        log.info(dateTime.toString() + "after calling");
         dateTime = dateTime.plusSeconds(5);
-        log.info("createdAt"+dateTime.toString());
+        log.info("createdAt" + dateTime);
         log.info(LocalDateTime.now().toString());
-        if(dateTime.isAfter(LocalDateTime.now())) {
+        if (dateTime.isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Expired time resend code");
         }
     }

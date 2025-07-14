@@ -58,4 +58,7 @@ public class Expert {
 
     @OneToMany(mappedBy = "expert", cascade = CascadeType.ALL)
     private List<Booking> booking;
+
+    @OneToMany(mappedBy = "expert", cascade = CascadeType.ALL)
+    private List<CouponEntity> couponEntities;
 }
