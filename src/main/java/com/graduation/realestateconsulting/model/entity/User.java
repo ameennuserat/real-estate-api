@@ -11,6 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,8 +64,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> booking;
 
-
-
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -76,6 +75,22 @@ public class User implements UserDetails {
 
     @Column(name = "block_expires_at")
     private LocalDateTime blockExpiresAt;
+
+    @OneToMany(mappedBy = "user1", cascade = CascadeType.ALL)
+    private List<Room> roomsOfUser1;
+
+    @OneToMany(mappedBy = "user2", cascade = CascadeType.ALL)
+    private List<Room> roomsOfUser2;
+
+    @Transient
+    public List<Room> getAllRoom() {
+        List<Room> rooms = new ArrayList<>();
+        if (roomsOfUser1 != null) rooms.addAll(roomsOfUser1);
+        if (roomsOfUser2 != null) rooms.addAll(roomsOfUser2);
+        return rooms;
+    }
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
