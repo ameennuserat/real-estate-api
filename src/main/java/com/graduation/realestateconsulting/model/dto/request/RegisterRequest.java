@@ -28,8 +28,8 @@ public class RegisterRequest {
     private Role role;
     // for office
     private String location;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
     private MultipartFile commercialRegisterImage;
     // for expert
     private MultipartFile idCardImage;

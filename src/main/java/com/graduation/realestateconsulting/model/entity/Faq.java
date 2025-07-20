@@ -1,18 +1,33 @@
 package com.graduation.realestateconsulting.model.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
-public class Faq{
+@Setter
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "faq")
+public class Faq {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private String question;
 
-    public Long getId() {
-        return id;
-    }
+    private String answer;
+
+    @ManyToOne
+    @JoinColumn(name = "faq_category_id")
+    private FaqCategory faqCategory;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
 }

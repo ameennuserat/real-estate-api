@@ -41,6 +41,8 @@ public class CreateExpertListener {
                 .rateCount(1)
                 .idCardImage(idCardImage)
                 .degreeCertificateImage(degreeCertificateImage)
+                .followersCount(0)
+                .favoritesCount(0)
                 .build();
         log.info("Created Expert: {}", expert.getProfession());
         expertRepository.save(expert);

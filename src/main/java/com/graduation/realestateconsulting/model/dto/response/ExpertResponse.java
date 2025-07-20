@@ -16,5 +16,9 @@ public class ExpertResponse {
     private String bio;
     private String idCardImage;
     private String degreeCertificateImage;
+    private Double perMinuteVideo;
+    private Double perMinuteAudio;
+    private Integer followersCount;
+    private Integer favoritesCount;
 
 }

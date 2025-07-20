@@ -1,6 +1,8 @@
     package com.graduation.realestateconsulting.exceptions;
 
+    import com.graduation.realestateconsulting.exceptions.newExceptions.InvalidCouponException;
     import com.graduation.realestateconsulting.model.dto.response.ExceptionResponse;
+    import com.stripe.exception.StripeException;
     import jakarta.persistence.EntityNotFoundException;
     import lombok.extern.slf4j.Slf4j;
     import org.springframework.http.HttpStatus;
@@ -83,6 +85,52 @@
             ExceptionResponse body = ExceptionResponse.builder()
                     .status("Failure")
                     .message("Bad request")
+                    .errors(List.of(dto))
+                    .build();
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(body);
+        }
+
+        @ExceptionHandler({InvalidCouponException.class})
+        public ResponseEntity<ExceptionResponse> handleBadRequestExceptions(
+                InvalidCouponException ex) {
+
+            ExceptionDto dto = ExceptionDto.builder()
+                    .timestamp(new Date())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .message(ex.getLocalizedMessage())
+                    .build();
+
+            log.error("Bad request", ex);
+
+            ExceptionResponse body = ExceptionResponse.builder()
+                    .status("Failure")
+                    .message("Bad request")
+                    .errors(List.of(dto))
+                    .build();
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(body);
+        }
+
+        @ExceptionHandler({StripeException.class})
+        public ResponseEntity<ExceptionResponse> handleBadRequestExceptions(
+                StripeException ex) {
+
+            ExceptionDto dto = ExceptionDto.builder()
+                    .timestamp(new Date())
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .message(ex.getLocalizedMessage())
+                    .build();
+
+            log.error("Bad request", ex);
+
+            ExceptionResponse body = ExceptionResponse.builder()
+                    .status("Failure")
+                    .message("Internal server error")
                     .errors(List.of(dto))
                     .build();
 

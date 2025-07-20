@@ -3,9 +3,13 @@ package com.graduation.realestateconsulting.services;
 import com.graduation.realestateconsulting.model.dto.request.*;
 import com.graduation.realestateconsulting.model.dto.response.LoginResponse;
 import com.graduation.realestateconsulting.model.dto.response.RefreshTokenResponse;
+import com.graduation.realestateconsulting.model.dto.response.UserStatusResponse;
+
 import java.time.LocalDateTime;
 
 public interface AuthService {
+
+    UserStatusResponse checkUserStatus(Long id);
 
     String register(RegisterRequest request);
 

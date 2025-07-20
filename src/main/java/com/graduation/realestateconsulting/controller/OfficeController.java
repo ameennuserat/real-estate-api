@@ -3,11 +3,11 @@ package com.graduation.realestateconsulting.controller;
 import com.graduation.realestateconsulting.model.dto.request.OfficeImageRequest;
 import com.graduation.realestateconsulting.model.dto.request.OfficeRequest;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
+import com.graduation.realestateconsulting.model.enums.UserStatus;
 import com.graduation.realestateconsulting.services.OfficeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +22,21 @@ public class OfficeController {
     private final OfficeService service;
 
     @GetMapping
-    public ResponseEntity<?> findAll(@PageableDefault Pageable pageable) {
+    public ResponseEntity<?> findAll(@RequestParam(value = "page",defaultValue = "0") int page,
+                                     @RequestParam(value = "size",defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
                 .data(service.findAll(pageable))
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<?> findAllByUserStatus(@RequestParam(name = "status") UserStatus status) {
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(service.findAllByUserStatus(status))
                 .build();
         return ResponseEntity.ok(response);
     }

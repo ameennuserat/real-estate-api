@@ -2,6 +2,7 @@ package com.graduation.realestateconsulting.controller;
 
 import com.graduation.realestateconsulting.model.dto.request.UserImageRequest;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
+import com.graduation.realestateconsulting.model.enums.UserStatus;
 import com.graduation.realestateconsulting.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -32,6 +33,24 @@ public class UserController {
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
                 .data(userService.getMe()).build();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id,@RequestParam(name = "status") UserStatus status){
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(userService.updateStatus(id,status)).build();
+        return ResponseEntity.ok(response);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable Long id){
+        userService.deleteById(id);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data("message => User deleted successfully").build();
         return ResponseEntity.ok(response);
     }
 
