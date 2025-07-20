@@ -146,31 +146,29 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional(readOnly = true)
     public Page<ExpertReportSummaryResponse> getFrequentlyReportedExperts(Pageable pageable) {
-
-        // 1. جلب قائمة الخبراء الأكثر بلاغات مع الترقيم.
+        
         Page<Object[]> expertCountsPage = reportRepository.findFrequentlyReportedExperts(pageable);
 
-        // استخراج كائنات الخبراء من نتائج الصفحة الحالية.
+
         List<User> expertsOnPage = expertCountsPage.getContent().stream()
                 .map(result -> (User) result[0])
                 .collect(Collectors.toList());
 
-        // 2. جلب جميع البلاغات لهؤلاء الخبراء في استعلام واحد فقط (لتجنب مشكلة N+1).
         List<Report> reportsForExpertsOnPage = reportRepository.findByReportedUserIn(expertsOnPage);
 
-        // 3. تجميع البلاغات في خريطة (Map) ليسهل الوصول إليها، حيث يكون المفتاح هو الخبير.
+
         Map<Long, List<ReportResponse>> reportsByExpertId = reportsForExpertsOnPage.stream()
                 .collect(Collectors.groupingBy(
                         report -> report.getReportedUser().getId(),
                         Collectors.mapping(reportMapper::toDto, Collectors.toList())
                 ));
 
-        // 4. بناء الاستجابة النهائية (صفحة من DTOs).
+
         return expertCountsPage.map(result -> {
             User expert = (User) result[0];
             long reportCount = (Long) result[1];
 
-            // احصل على قائمة البلاغات الخاصة بهذا الخبير من الخريطة
+
             List<ReportResponse> expertReports = reportsByExpertId.getOrDefault(expert.getId(), List.of());
 
             return new ExpertReportSummaryResponse(
