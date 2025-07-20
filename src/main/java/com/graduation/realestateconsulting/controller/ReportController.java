@@ -188,7 +188,7 @@ public class ReportController {
 
         GlobalResponse globalResponse = GlobalResponse.builder()
                 .status("Success")
-                .data(reports.getContent())
+                .data(reports)
                 .build();
         return ResponseEntity.ok(globalResponse);
     }
@@ -202,14 +202,14 @@ public class ReportController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getFrequentlyReportedExperts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size // نعرض 5 خبراء في كل صفحة مثلاً
+            @RequestParam(defaultValue = "5") int size 
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ExpertReportSummaryResponse> result = reportService.getFrequentlyReportedExperts(pageable);
 
         GlobalResponse globalResponse = GlobalResponse.builder()
                 .status("Success")
-                .data(result.getContent())
+                .data(result)
                 .build();
 
         return ResponseEntity.ok(globalResponse);

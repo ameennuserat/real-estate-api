@@ -15,7 +15,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> , JpaSpeci
     List<Report> findByReportedUser(User reportedUser);
     @Query("SELECT r.reportedUser, COUNT(r) as reportCount " +
             "FROM Report r " +
-            "WHERE r.reportedUser.role = 'EXPERT' " +
+            "WHERE r.reportedUser.role IN ('EXPERT', 'USER', 'OFFICE')" +
             "GROUP BY r.reportedUser " +
             "ORDER BY reportCount DESC")
     Page<Object[]> findFrequentlyReportedExperts(Pageable pageable);
