@@ -1,13 +1,18 @@
 package com.graduation.realestateconsulting.controller;
 
+import com.graduation.realestateconsulting.filter.dto.FilterRequestDto;
+import com.graduation.realestateconsulting.filter.dto.PageRequestDto;
+import com.graduation.realestateconsulting.filter.service.FiltersSpecificationService;
 import com.graduation.realestateconsulting.model.dto.request.TicketRequest;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
+import com.graduation.realestateconsulting.model.entity.Ticket;
 import com.graduation.realestateconsulting.model.enums.HouseType;
 import com.graduation.realestateconsulting.model.enums.ServiceType;
 import com.graduation.realestateconsulting.services.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +23,19 @@ import org.springframework.web.bind.annotation.*;
 public class TicketController {
 
     private final TicketService service;
+
+    private final FiltersSpecificationService<Ticket> ticketFilter;
+
+    @PostMapping("/filter")
+    public  ResponseEntity<?> filterTicket(@RequestBody FilterRequestDto request) {
+        Specification<Ticket> ticketSpecification =  ticketFilter.getSearchSpecification(request.getFilterItems(),request.getGlobalOperator());
+        Pageable pageable = new PageRequestDto().getPageable(request.getPageRequest());
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(service.filterTicket(ticketSpecification,pageable))
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping
   public ResponseEntity<?> findAll(@RequestParam(value = "page",defaultValue = "0") int page,

@@ -13,16 +13,14 @@ import com.graduation.realestateconsulting.model.mapper.UserMapper;
 import com.graduation.realestateconsulting.repository.ReportCategoryRepository;
 import com.graduation.realestateconsulting.repository.ReportRepository;
 import com.graduation.realestateconsulting.repository.UserRepository;
+import com.graduation.realestateconsulting.services.ReportService;
 import com.graduation.realestateconsulting.services.UserManagementService;
 import com.graduation.realestateconsulting.trait.ReportSpecification;
-import jakarta.xml.bind.SchemaOutputResolver;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import com.graduation.realestateconsulting.services.ReportService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -177,5 +175,10 @@ public class ReportServiceImpl implements ReportService {
                     expertReports
             );
         });
+    }
+
+    @Override
+    public Page<ReportResponse> filterReport(Specification<Report> reportSpecification, Pageable pageable) {
+        return reportRepository.findAll(reportSpecification,pageable).map(reportMapper::toDto);
     }
 }

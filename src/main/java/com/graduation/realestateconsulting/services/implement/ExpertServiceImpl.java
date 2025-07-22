@@ -13,6 +13,7 @@ import com.graduation.realestateconsulting.services.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -92,6 +93,11 @@ public class ExpertServiceImpl implements ExpertService{
         }
 
         repository.save(expert);
+    }
+
+    @Override
+    public Page<ExpertResponse> filterExpert(Specification<Expert> expertSpecification, Pageable pageable) {
+        return repository.findAll(expertSpecification, pageable).map(mapper::toDto);
     }
 
 //    @Override

@@ -1,12 +1,15 @@
 package com.graduation.realestateconsulting.controller;
 
+import com.graduation.realestateconsulting.filter.dto.FilterRequestDto;
+import com.graduation.realestateconsulting.filter.dto.PageRequestDto;
+import com.graduation.realestateconsulting.filter.service.FiltersSpecificationService;
 import com.graduation.realestateconsulting.model.dto.request.CreateReportRequest;
 import com.graduation.realestateconsulting.model.dto.request.ReportSearchCriteria;
 import com.graduation.realestateconsulting.model.dto.response.ExceptionResponse;
 import com.graduation.realestateconsulting.model.dto.response.ExpertReportSummaryResponse;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportResponse;
-import com.graduation.realestateconsulting.model.entity.ReportCategory;
+import com.graduation.realestateconsulting.model.entity.Report;
 import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.services.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,13 +17,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.PermitAll;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +31,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/reports")
@@ -37,6 +38,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReportController {
     private final ReportService reportService;
+    private final FiltersSpecificationService<Report> reportFilter;
+
 
 
     @Operation(
@@ -191,6 +194,18 @@ public class ReportController {
                 .data(reports)
                 .build();
         return ResponseEntity.ok(globalResponse);
+    }
+
+
+    @PostMapping("/filter")
+    public  ResponseEntity<?> filterReport(@RequestBody FilterRequestDto request) {
+        Specification<Report> reportSpecification =  reportFilter.getSearchSpecification(request.getFilterItems(),request.getGlobalOperator());
+        Pageable pageable = new PageRequestDto().getPageable(request.getPageRequest());
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(reportService.filterReport(reportSpecification,pageable))
+                .build();
+        return ResponseEntity.ok(response);
     }
 
 

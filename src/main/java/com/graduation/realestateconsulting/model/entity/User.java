@@ -43,6 +43,7 @@ public class User implements UserDetails {
 
     private boolean enable;
 
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     private String verificationCode;

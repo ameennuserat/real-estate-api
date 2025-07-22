@@ -82,7 +82,7 @@ public class RoomServiceImpl implements RoomService {
         }
 
         User user1 = userRepo.findById(id1).orElseThrow(() -> new IllegalArgumentException("user1 not found"));
-        User user2 = userRepo.findById(id1).orElseThrow(() -> new IllegalArgumentException("user2 not found"));
+        User user2 = userRepo.findById(id2).orElseThrow(() -> new IllegalArgumentException("user2 not found"));
 
         Room room = Room.builder()
                 .user1(user1)

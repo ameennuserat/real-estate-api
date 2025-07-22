@@ -3,7 +3,10 @@ package com.graduation.realestateconsulting.services;
 
 import com.graduation.realestateconsulting.model.dto.request.PostsRequest;
 import com.graduation.realestateconsulting.model.dto.response.PostsResponse;
+import com.graduation.realestateconsulting.model.entity.Posts;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
@@ -23,4 +26,5 @@ public interface PostsService {
 
     void delete(Long id);
 
+    Page<PostsResponse> filterPosts(Specification<Posts> postsSpecification, Pageable pageable);
 }

@@ -1,8 +1,10 @@
 package com.graduation.realestateconsulting.services;
 
 import com.graduation.realestateconsulting.model.dto.response.ClientResponse;
+import com.graduation.realestateconsulting.model.entity.Client;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 public interface ClientService {
 
@@ -19,4 +21,6 @@ public interface ClientService {
     void deleteFollower(Long id);
 
     void deleteFavorite(Long id);
+
+    Page<ClientResponse> filterClient(Specification<Client> clientSpecification, Pageable pageable);
 }

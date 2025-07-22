@@ -1,10 +1,16 @@
 package com.graduation.realestateconsulting.controller;
 
+import com.graduation.realestateconsulting.filter.dto.FilterRequestDto;
+import com.graduation.realestateconsulting.filter.dto.PageRequestDto;
+import com.graduation.realestateconsulting.filter.service.FiltersSpecificationService;
 import com.graduation.realestateconsulting.model.dto.request.PostsRequest;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
+import com.graduation.realestateconsulting.model.entity.Posts;
 import com.graduation.realestateconsulting.services.PostsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +22,19 @@ import org.springframework.web.bind.annotation.*;
 public class PostsController {
 
     private final PostsService service;
+
+    private final FiltersSpecificationService<Posts> postsFilter;
+
+    @PostMapping("/filter")
+    public  ResponseEntity<?> filterPosts(@RequestBody FilterRequestDto request) {
+        Specification<Posts> postsSpecification =  postsFilter.getSearchSpecification(request.getFilterItems(),request.getGlobalOperator());
+        Pageable pageable = new PageRequestDto().getPageable(request.getPageRequest());
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(service.filterPosts(postsSpecification,pageable))
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping
     public ResponseEntity<?> findAll() {

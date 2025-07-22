@@ -7,7 +7,9 @@ import com.graduation.realestateconsulting.model.mapper.PostsMapper;
 import com.graduation.realestateconsulting.repository.PostsRepository;
 import com.graduation.realestateconsulting.services.PostsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -60,5 +62,10 @@ public class PostsServiceImpl implements PostsService {
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Page<PostsResponse> filterPosts(Specification<Posts> postsSpecification, Pageable pageable) {
+        return repository.findAll(postsSpecification, pageable).map(mapper::toDto);
     }
 }

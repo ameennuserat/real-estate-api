@@ -12,6 +12,7 @@ import java.util.List;
 @Mapper(uses = {AppMapper.class,FaqCategoryMapper.class})
 public interface FaqMapper {
 
+    @Mapping(target = "category",source = "faqCategory")
     FaqResponse toDto(Faq entity);
 
     List<FaqResponse> toDtos(List<Faq> entities);
