@@ -7,9 +7,9 @@ import com.graduation.realestateconsulting.model.mapper.FaqMapper;
 import com.graduation.realestateconsulting.repository.FaqRepository;
 import com.graduation.realestateconsulting.services.FaqService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,13 +19,13 @@ public class FaqServiceImpl implements FaqService {
     private final FaqMapper mapper;
 
     @Override
-    public List<FaqResponse> findAll() {
-        return mapper.toDtos(repository.findAll());
+    public Page<FaqResponse> findAll(Pageable pageable) {
+        return repository.findAll(pageable).map(mapper::toDto);
     }
 
     @Override
-    public List<FaqResponse> findAllByCategoryId(Long categoryId) {
-        return mapper.toDtos(repository.findAllByFaqCategoryId(categoryId));
+    public Page<FaqResponse> findAllByCategoryId(Pageable pageable,Long categoryId) {
+        return repository.findAllByFaqCategoryId(pageable, categoryId).map(mapper::toDto);
     }
 
     @Override

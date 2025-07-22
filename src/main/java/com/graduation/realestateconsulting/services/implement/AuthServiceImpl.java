@@ -5,6 +5,7 @@ import com.graduation.realestateconsulting.exceptions.newExceptions.AccountBlock
 import com.graduation.realestateconsulting.model.dto.request.*;
 import com.graduation.realestateconsulting.model.dto.response.LoginResponse;
 import com.graduation.realestateconsulting.model.dto.response.RefreshTokenResponse;
+import com.graduation.realestateconsulting.model.dto.response.RegisterResponse;
 import com.graduation.realestateconsulting.model.dto.response.UserStatusResponse;
 import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.Role;
@@ -55,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public String register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) {
         User user = userMapper.toEntity(request);
         User savedUser = userRepository.save(user);
 
@@ -67,7 +68,14 @@ public class AuthServiceImpl implements AuthService {
             publisher.publishEvent(new CreateExpertEvent(this, request, savedUser, request.getIdCardImage(), request.getDegreeCertificateImage()));
         }
         publisher.publishEvent(new GmailNotificationEvent(this, SentEmailMessageRequest.builder().to(savedUser.getEmail()).body(savedUser.getVerificationCode()).subject("Verification your account").build()));
-        return "registered successfully";
+        return RegisterResponse.builder()
+                .id(savedUser.getId())
+                .firstName(savedUser.getFirstName())
+                .lastName(savedUser.getLastName())
+                .email(savedUser.getEmail())
+                .phone(savedUser.getPhone())
+                .role(savedUser.getRole())
+                .build();
     }
 
 

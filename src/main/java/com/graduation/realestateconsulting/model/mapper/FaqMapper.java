@@ -19,5 +19,6 @@ public interface FaqMapper {
     @Mapping(target = "faqCategory",source ="categoryId",qualifiedByName = "getFaqCategoryById")
     Faq toEntity(FaqRequest request);
 
+    @Mapping(target = "faqCategory",source ="categoryId",qualifiedByName = "getFaqCategoryById")
     void toEntity(@MappingTarget Faq entity, FaqRequest request);
 }
