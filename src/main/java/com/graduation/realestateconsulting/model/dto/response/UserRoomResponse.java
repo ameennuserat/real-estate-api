@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class UserRoomResponse {
+    private Long id;
     private UserResponse otherUser;
-    private String roomKey;
     private LocalDate createdAt;
 }
