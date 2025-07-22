@@ -9,6 +9,7 @@ import com.graduation.realestateconsulting.services.FaqService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -51,5 +52,10 @@ public class FaqServiceImpl implements FaqService {
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Page<FaqResponse> filterFaq(Specification<Faq> faqSpecification, Pageable pageable) {
+        return repository.findAll(faqSpecification, pageable).map(mapper::toDto);
     }
 }

@@ -3,10 +3,12 @@ package com.graduation.realestateconsulting.services;
 
 import com.graduation.realestateconsulting.model.dto.request.TicketRequest;
 import com.graduation.realestateconsulting.model.dto.response.TicketResponse;
+import com.graduation.realestateconsulting.model.entity.Ticket;
 import com.graduation.realestateconsulting.model.enums.HouseType;
 import com.graduation.realestateconsulting.model.enums.ServiceType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
@@ -22,4 +24,5 @@ public interface TicketService {
     void delete(Long id);
 
 
+    Page<TicketResponse> filterTicket(Specification<Ticket> ticketSpecification, Pageable pageable);
 }

@@ -11,6 +11,7 @@ import com.graduation.realestateconsulting.services.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,5 +62,10 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public Page<TicketResponse> filterTicket(Specification<Ticket> ticketSpecification, Pageable pageable) {
+        return repository.findAll(ticketSpecification,pageable).map(mapper::toDto);
     }
 }

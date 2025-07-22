@@ -10,6 +10,7 @@ import com.graduation.realestateconsulting.repository.ExpertRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -118,6 +119,11 @@ public class ClientServiceImpl implements ClientService {
         repository.save(client);
 
         updateExpertFavoriteCount(expert, -1);
+    }
+
+    @Override
+    public Page<ClientResponse> filterClient(Specification<Client> clientSpecification, Pageable pageable) {
+        return repository.findAll(clientSpecification, pageable).map(mapper::toDto);
     }
 
     private User getCurrentUser() {

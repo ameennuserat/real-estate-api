@@ -5,6 +5,7 @@ import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
 import com.graduation.realestateconsulting.model.enums.RoomStatus;
 import com.graduation.realestateconsulting.services.MessageService;
 import com.graduation.realestateconsulting.services.RoomService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,16 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/rooms")
+@RequiredArgsConstructor
 public class RoomController {
 
     private final RoomService service;
     private final MessageService messageService;
-
-    public RoomController(RoomService service, MessageService messageService) {
-        this.service = service;
-        this.messageService = messageService;
-    }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getRoomById(@PathVariable long id) {
@@ -60,7 +56,6 @@ public class RoomController {
         service.deleteRoom(id);
         GlobalResponse response = GlobalResponse.builder().status("success")
                 .data("message => Room with id: "+id+" deleted successfully").build();
-        ;
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
