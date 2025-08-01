@@ -4,6 +4,7 @@ import com.graduation.realestateconsulting.observer.events.GmailNotificationEven
 import com.graduation.realestateconsulting.trait.SendEmailMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class GmailNotificationListener {
     private final SendEmailMessage sendEmailMessage;
 
+    @Async
     @EventListener
     public void handleGmailEvent(GmailNotificationEvent event) {
         sendEmailMessage.handleEvent(event.getSentEmailMessageRequest());

@@ -1,0 +1,126 @@
+#version: '3.8'
+#
+#services:
+#  rabbitmq:
+#    image: rabbitmq:3-management
+#    container_name: my-rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#
+#  app:
+#    build: .
+#    container_name: real-estate-app
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - rabbitmq
+#    environment:
+#      # قاعدة البيانات (MySQL تعمل على جهازك)
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/real_estate_db?createDatabaseIfNotExist=true
+#      - SPRING_DATASOURCE_USERNAME=root
+#      - SPRING_DATASOURCE_PASSWORD=
+#
+#      # RabbitMQ
+#      - SPRING_RABBITMQ_HOST=rabbitmq
+#      - SPRING_RABBITMQ_PORT=5672
+#      - SPRING_RABBITMQ_USERNAME=guest
+#      - SPRING_RABBITMQ_PASSWORD=guest
+#
+#      # البريد الإلكتروني
+#      - SPRING_MAIL_HOST=smtp.gmail.com
+#      - SPRING_MAIL_PORT=587
+#      - SPRING_MAIL_USERNAME=kk0026999@gmail.com
+#      - SPRING_MAIL_PASSWORD=dgbo yavf sztp orlu
+#
+#      # JWT
+#      - JWT_SECRET_KEY=ee270d5a96c570ac9cf0ad3a546f346636962580271d2edfbf004de5f585c3d5
+#      - JWT_EXPIRATION=86400000
+#      - JWT_REFRESH_EXPIRATION=2592000000
+#
+#      # Stripe
+#      - STRIPE_SECRET_KEY=sk_test_51Rb6T5Cd1fx7W6vZU0pHhvI4LwOJesQH1ClBgvva9kWgCo7SF73XzMLhqiLKShUVI4EMRaPAdkRMpbvo3zNkjSZ600TsKPkYug
+#      - STRIPE_WEBHOOK_SECRET=whsec_G615kZyIghOnz0Xl8ojplrECrvDQZ2Z6
+#
+#      #firebase
+#      - firebase.project-mobile.key-path=realestate-bb970-firebase-adminsdk-fbsvc-72a2a57d76.json
+#      - firebase.project-web.key-path=real_estate_dashboard_99fd8_firebase_adminsdk_fbsvc_f554b7e422.json
+#    volumes:
+#      - maven_cache:/root/.m2
+#volumes:
+#    maven_cache:
+
+
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: my-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  app:
+    build: .
+    container_name: real-estate-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+    environment:
+      # --- Database & JPA ---
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/real_estate_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_HIBERNATE_DDL-AUTO=update
+      - SPRING_JPA_DATABASE-PLATFORM=org.hibernate.dialect.MySQLDialect
+
+      # --- RabbitMQ ---
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=guest
+      - SPRING_RABBITMQ_PASSWORD=guest
+      - RABBITMQ_QUEUE_NOTIFICATION=notifications.queue
+
+      # --- Mail ---
+      - SPRING_MAIL_HOST=smtp.gmail.com
+      - SPRING_MAIL_PORT=587
+      - SPRING_MAIL_USERNAME=kk0026999@gmail.com
+      - SPRING_MAIL_PASSWORD=dgbo yavf sztp orlu
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
+      - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED=true
+      - SPRING_MAIL_PROPERTIES_MAIL_FROM_NAME=Real Estate Consulting
+
+      # --- JWT (Corrected Names) ---
+      - SECURITY_JWT_SECRET-KEY=ee270d5a96c570ac9cf0ad3a546f346636962580271d2edfbf004de5f585c3d5
+      - SECURITY_JWT_EXPIRATION-TIME=86400000
+      - SECURITY_JWT_REFRESH_EXPIRATION-TIME=2592000000
+
+      # --- File Handling & Image URL ---
+      - IMAGE_DIRECTORY=images/
+      - IMAGE_URL=http://localhost:8080/images/
+      - SPRING_SERVLET_MULTIPART_MAX-FILE-SIZE=20MB
+      - SPRING_SERVLET_MULTIPART_MAX-REQUEST-SIZE=20MB
+
+      # --- Stripe (Corrected Names) ---
+      - STRIPE_API_SECRETKEY=sk_test_51Rb6T5Cd1fx7W6vZU0pHhvI4LwOJesQH1ClBgvva9kWgCo7SF73XzMLhqiLKShUVI4EMRaPAdkRMpbvo3zNkjSZ600TsKPkYug
+      - STRIPE_WEBHOOK_SECRET=whsec_G615kZyIghOnz0Xl8ojplrECrvDQZ2Z6
+
+      # --- Firebase (Corrected Names) ---
+      - FIREBASE_PROJECT-MOBILE_KEY-PATH=classpath:realestate-bb970-firebase-adminsdk-fbsvc-72a2a57d76.json
+      - FIREBASE_PROJECT-WEB_KEY-PATH=classpath:real_estate_dashboard_99fd8_firebase_adminsdk_fbsvc_f554b7e422.json
+
+      # --- Logging ---
+      - LOGGING_FILE_NAME=logs/app.log
+      - LOGGING_LEVEL_ROOT=INFO
+
+    volumes:
+      - maven_cache:/root/.m2
+      # Example of mounting a local directory for logs if needed:
+      # - ./logs:/app/logs
+
+volumes:
+  maven_cache:

@@ -2,6 +2,7 @@ package com.graduation.realestateconsulting.services.implement;
 
 import com.graduation.realestateconsulting.exceptions.newExceptions.InvalidCouponException;
 import com.graduation.realestateconsulting.model.dto.request.CreateCouponRequest;
+import com.graduation.realestateconsulting.model.dto.request.NotificationRequest;
 import com.graduation.realestateconsulting.model.dto.request.UpdateCouponRequest;
 import com.graduation.realestateconsulting.model.dto.response.CouponResponse;
 import com.graduation.realestateconsulting.model.entity.Client;
@@ -15,7 +16,9 @@ import com.graduation.realestateconsulting.model.mapper.CouponMapper;
 import com.graduation.realestateconsulting.repository.BookingRepository;
 import com.graduation.realestateconsulting.repository.CouponRepository;
 import com.graduation.realestateconsulting.repository.ExpertRepository;
+import com.graduation.realestateconsulting.repository.UserRepository;
 import com.graduation.realestateconsulting.services.CouponService;
+import com.graduation.realestateconsulting.services.NotificationService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Coupon;
 import com.stripe.model.PromotionCode;
@@ -41,6 +44,8 @@ public class CouponServiceImpl implements CouponService {
     private final ExpertRepository expertRepository;
     private final BookingRepository bookingRepository;
     private final CouponMapper mapper;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -70,7 +75,7 @@ public class CouponServiceImpl implements CouponService {
         try {
             // --- 3. التواصل مع Stripe لإنشاء الكوبونات ---
 
-            // --- أ. إنشاء كائن Coupon في Stripe ---
+            //  إنشاء كائن Coupon في Stripe ---
             CouponCreateParams.Builder couponParamsBuilder = CouponCreateParams.builder()
                     .setName(request.code());
 
@@ -84,7 +89,7 @@ public class CouponServiceImpl implements CouponService {
 
             Coupon stripeCoupon = Coupon.create(couponParamsBuilder.build());
 
-            // --- ب. إنشاء كائن Promotion Code في Stripe ---
+            // إنشاء كائن Promotion Code في Stripe ---
             PromotionCodeCreateParams.Builder promoCodeParamsBuilder = PromotionCodeCreateParams.builder()
                     .setCoupon(stripeCoupon.getId())
                     .setCode(request.code().toUpperCase())
@@ -101,6 +106,33 @@ public class CouponServiceImpl implements CouponService {
 
 
             CouponEntity finalCoupon = couponRepository.save(provisionalCoupon);
+
+            String title = "New Coupon Created";
+            String message = String.format("Coupon '%s' has been created in the system.", finalCoupon.getCode());
+
+            List<User> admins = userRepository.findAllByRole(Role.ADMIN);
+            List<User> experts = userRepository.findAllByRole(Role.EXPERT);
+
+            if(creator.getRole() == Role.ADMIN) {
+                // to all admins
+                for(User admin : admins) {
+                    NotificationRequest request1 = NotificationRequest.builder().title(title).message(message).user(admin).build();
+                    notificationService.createAndSendNotification(request1);
+                }
+                // to all experts
+                for(User expert : experts) {
+                    NotificationRequest request1 = NotificationRequest.builder().title(title).message(message).user(expert).build();
+                    notificationService.createAndSendNotification(request1);
+                }
+            }
+            // if added by expert notify all admins only
+            else {
+                for(User admin : admins) {
+                    NotificationRequest request1 = NotificationRequest.builder().title(title).message(message).user(admin).build();
+                    notificationService.createAndSendNotification(request1);
+                }
+            }
+
             return mapper.toDto(finalCoupon);
 
         } catch (StripeException e) {
