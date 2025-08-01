@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  # تعريف خدمة طابور الرسائل RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: my-rabbitmq
+    ports:
+      # ربط بورت 5672 على جهازك بالبورت 5672 داخل الحاوية
+      - "5672:5672"
+      # ربط بورت 15672 لواجهة الإدارة
+      - "15672:15672"
