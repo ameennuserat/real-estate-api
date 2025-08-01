@@ -55,8 +55,8 @@ public class NotificationServiceImpl implements NotificationService {
 
         if (notification.getUser().getFcmToken() != null && !notification.getUser().getFcmToken().isEmpty()) {
 
-            TargetPlatform platform = TargetPlatform.MOBILE; //notification.getUser().getRole() == Role.ADMIN  ?
-                                        //TargetPlatform.WEB : TargetPlatform.MOBILE;
+            TargetPlatform platform =  notification.getUser().getRole() == Role.ADMIN  ?
+                                        TargetPlatform.WEB : TargetPlatform.MOBILE;
 
             PushNotificationRequest pushRequest = PushNotificationRequest.builder()
                     .title(notificationRequest.title())
