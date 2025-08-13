@@ -30,6 +30,10 @@ public class Message {
     @Column(columnDefinition = "Text")
     private String content;
 
+    private String fileName;
+    private String fileType;
+    private String filePath;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

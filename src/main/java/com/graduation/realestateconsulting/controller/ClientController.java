@@ -83,6 +83,26 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PostMapping("/rate-expert/{expertId}")
+    public ResponseEntity<?> rateExpert(@PathVariable Long expertId, @RequestParam double rate) {
+        service.rateExpert(expertId, rate);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data("Expert rated successfully")
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/rate-office/{officeId}")
+    public ResponseEntity<?> rateOffice(@PathVariable Long officeId, @RequestParam double rate) {
+        service.rateOffice(officeId, rate);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data("Office rated successfully")
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @DeleteMapping("/remove-follower/{expertId}")
     public ResponseEntity<?> removeFollow(@PathVariable Long expertId) {
         service.deleteFollower(expertId);

@@ -13,6 +13,7 @@ import java.util.List;
 public interface OfficeMapper {
 
     @Mapping(target = "commercialRegisterImage" , source = "commercialRegisterImage", qualifiedByName = "addPrefixToImageUrl")
+    @Mapping(target = "rating" ,expression = "java(entity.getTotalRate() / entity.getRateCount())")
     OfficeResponse toDto(Office entity);
     List<OfficeResponse> toDtos(List<Office> entities);
 

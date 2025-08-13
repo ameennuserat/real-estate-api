@@ -71,6 +71,15 @@ public class PropertyController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/top-viewed")
+    public ResponseEntity<?> findTop20Viewing() {
+        GlobalResponse response = GlobalResponse.builder()
+                .status("success")
+                .data(service.findTop20Viewed())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@Parameter(description = "ID of the property to retrieve", required = true, example = "1") @PathVariable Long id) {
         GlobalResponse response = GlobalResponse.builder().status("success").data(service.findById(id)).build();

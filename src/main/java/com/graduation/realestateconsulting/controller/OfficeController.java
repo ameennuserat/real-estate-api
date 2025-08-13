@@ -59,6 +59,15 @@ public class OfficeController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/top-rated")
+    public ResponseEntity<?> findTop20Rated() {
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(service.findTop20Rated())
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
         GlobalResponse response = GlobalResponse.builder()

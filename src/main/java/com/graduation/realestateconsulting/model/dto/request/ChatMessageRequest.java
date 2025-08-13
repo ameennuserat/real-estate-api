@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class MessageRequest {
+public class ChatMessageRequest {
 
     private Long roomId;
     private Long senderId;
