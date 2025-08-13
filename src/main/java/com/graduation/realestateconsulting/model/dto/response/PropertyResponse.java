@@ -24,6 +24,7 @@ public class PropertyResponse {
     private int numberOfBathrooms;
     private double latitude;
     private double longitude;
+    private int viewsCount;
 
     private List<PropertyImageResponse> propertyImageList;
     private PropertyOfficeResponse office;

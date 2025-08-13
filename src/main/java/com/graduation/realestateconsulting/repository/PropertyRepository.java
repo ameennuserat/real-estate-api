@@ -33,4 +33,6 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSp
                                @Param("highArea") String highArea,
                                @Param("location") String location
     );
+
+    List<Property> findTop20ByOrderByViewsCountDesc();
 }

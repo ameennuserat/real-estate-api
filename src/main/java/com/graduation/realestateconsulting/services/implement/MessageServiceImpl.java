@@ -1,6 +1,7 @@
 package com.graduation.realestateconsulting.services.implement;
 
-import com.graduation.realestateconsulting.model.dto.request.MessageRequest;
+import com.graduation.realestateconsulting.model.dto.request.ChatFileRequest;
+import com.graduation.realestateconsulting.model.dto.request.ChatMessageRequest;
 import com.graduation.realestateconsulting.model.dto.response.MessageResponse;
 import com.graduation.realestateconsulting.model.entity.Message;
 import com.graduation.realestateconsulting.model.entity.Room;
@@ -40,7 +41,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public MessageResponse createMessage(MessageRequest request) {
+    public MessageResponse createMessage(ChatMessageRequest request) {
         Room room = roomRepo.findById(request.getRoomId())
                 .orElseThrow(() -> new EntityNotFoundException("Room not found"));
         User sender = userRepo.findById(request.getSenderId())
@@ -50,6 +51,25 @@ public class MessageServiceImpl implements MessageService {
                 .room(room)
                 .content(request.getContent())
                 .sender(sender)
+                .createdAt(LocalDateTime.now())
+                .build();
+        Message savedMessage = repo.save(message);
+        return mapper.toDto(savedMessage);
+    }
+
+    @Override
+    public MessageResponse createFile(String path,ChatFileRequest request) {
+        Room room = roomRepo.findById(request.getRoomId())
+                .orElseThrow(() -> new EntityNotFoundException("Room not found"));
+        User sender = userRepo.findById(request.getSenderId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        Message message = Message.builder()
+                .sender(sender)
+                .room(room)
+                .filePath(path)
+                .fileName(request.getFileName())
+                .fileType(request.getFileType())
                 .createdAt(LocalDateTime.now())
                 .build();
         Message savedMessage = repo.save(message);

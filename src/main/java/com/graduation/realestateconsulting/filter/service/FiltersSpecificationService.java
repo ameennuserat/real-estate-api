@@ -3,6 +3,7 @@ package com.graduation.realestateconsulting.filter.service;
 import com.graduation.realestateconsulting.filter.dto.FilterItemRequestDto;
 import com.graduation.realestateconsulting.filter.enums.GlobalOperator;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -69,11 +70,26 @@ public class FiltersSpecificationService<T> {
                         predicates.add(join);
                         break;
 
-                    case CONCAT:
-                        String[] columnSplit = requestDto.getColumn().split(",");
-                        Expression<String> concatColumns = criteriaBuilder.concat(root.get(columnSplit[0]), criteriaBuilder.concat(" ",root.get(columnSplit[1])));
-                        Predicate concat = criteriaBuilder.like(criteriaBuilder.lower(concatColumns), "%" + requestDto.getValue().toLowerCase() + "%");
-                        predicates.add(concat);
+                    case LIKE_NAME:
+                        Expression<String> getFullName = criteriaBuilder.concat(root.join("user").get("firstName"), criteriaBuilder.concat(" ", root.join("user").get("lastName")));
+                        Predicate fullName = criteriaBuilder.like(criteriaBuilder.lower(getFullName), "%" + requestDto.getValue().toLowerCase() + "%");
+                        predicates.add(fullName);
+                        break;
+
+                    case LIKE_PROPERTY_OFFICE_NAME:
+                        Expression<String> getName = criteriaBuilder.concat(root.join("office").join("user").get("firstName"), criteriaBuilder.concat(" ", root.join("office").join("user").get("lastName")));
+                        Predicate propertyOfficeName = criteriaBuilder.like(criteriaBuilder.lower(getName), "%" + requestDto.getValue().toLowerCase() + "%");
+                        predicates.add(propertyOfficeName);
+                        break;
+
+                    case EQUAL_RATE:
+                        Path<Double> totalRate = root.get("totalRate");
+                        Path<Double> rateCount = root.get("rateCount");
+                        Expression<Integer> averageRate = criteriaBuilder.toInteger(
+                                criteriaBuilder.quot(totalRate, rateCount)
+                        );
+                        Predicate rating = criteriaBuilder.equal(averageRate, requestDto.getValue());
+                        predicates.add(rating);
                         break;
 
                     default:

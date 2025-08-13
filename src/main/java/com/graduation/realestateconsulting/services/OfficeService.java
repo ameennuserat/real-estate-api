@@ -18,6 +18,8 @@ public interface OfficeService {
 
     List<OfficeResponse> findAllByUserStatus(UserStatus status);
 
+    List<OfficeResponse> findTop20Rated();
+
     OfficeResponse findById(Long id);
 
     OfficeResponse getMe();

@@ -18,6 +18,8 @@ public interface ExpertService {
 
     List<ExpertResponse> findAllByUserStatus(UserStatus status);
 
+    List<ExpertResponse> findTop20Rated();
+
     ExpertResponse findById(Long id);
 
     ExpertResponse getMe();
@@ -27,6 +29,7 @@ public interface ExpertService {
     void uploadImage(ExpertImageRequest request) throws IOException;
 
     Page<ExpertResponse> filterExpert(Specification<Expert> expertSpecification, Pageable pageable);
+
 
 //    void updateExpertFollowerCount(Long id,Integer value);
 //

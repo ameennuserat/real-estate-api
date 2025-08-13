@@ -15,4 +15,9 @@ public class MessageResponse {
     private String content;
     private LocalDateTime createdAt;
 
+    // for file
+    private String fileName;
+    private String fileType;
+    private String fileUrl;
+
 }

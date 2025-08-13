@@ -17,6 +17,7 @@ public interface PropertyService {
     Page<PropertyResponse> findAll(Pageable pageable);
     List<PropertyResponse> findByFilters(String name, Double lowPrice, Double highPrice, ServiceType serviceType, HouseType houseType, String lowArea, String highArea, String location);
     Page<PropertyResponse> findAllByOfficeId(Pageable pageable, Long officeId);
+    List<PropertyResponse> findTop20Viewed();
     PropertyResponse findById(Long id);
     PropertyResponse save(PropertyRequest request);
     PropertyResponse update(Long id,PropertyRequest request);

@@ -35,6 +35,8 @@ public class CreateOfficeListener {
                 .commercialRegisterImage(url)
                 .location(event.getRegisterRequest().getLocation())
                 .latitude(event.getRegisterRequest().getLatitude())
+                .totalRate(5)
+                .rateCount(1)
                 .longitude(event.getRegisterRequest().getLongitude())
                 .build();
         officeRepository.save(office);

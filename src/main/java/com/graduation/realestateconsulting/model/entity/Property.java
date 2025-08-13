@@ -47,6 +47,8 @@ public class Property{
     private double latitude;
     private double longitude;
 
+    private int viewsCount;
+
     @OneToMany(mappedBy = "property",cascade = CascadeType.REMOVE)
     private List<PropertyImage> propertyImageList;
 
