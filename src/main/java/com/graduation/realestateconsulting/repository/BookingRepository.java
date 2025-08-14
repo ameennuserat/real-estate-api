@@ -28,5 +28,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("status") List<BookingStatus> status
     );
 
+    @Query("SELECT coalesce(SUM(b.finalPrice),0) FROM Booking b " +
+            "WHERE b.bookingStatus = :status " +
+            "AND b.scheduled_at BETWEEN :startDate AND :endDate")
+    double getAllRevenues(
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("status") BookingStatus status
+    );
+
     Long countByClientAndExpertAndBookingStatus(Client client, Expert expert, BookingStatus status);
+
+    @Query("SELECT COUNT(u) FROM Booking u WHERE u.scheduled_at BETWEEN :startDate AND :endDate")
+    long countBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
 }
