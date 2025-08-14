@@ -3,7 +3,10 @@ package com.graduation.realestateconsulting.model.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -61,4 +64,10 @@ public class Expert {
 
     @OneToMany(mappedBy = "expert", cascade = CascadeType.ALL)
     private List<CouponEntity> couponEntities;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

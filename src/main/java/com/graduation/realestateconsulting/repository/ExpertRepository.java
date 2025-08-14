@@ -6,7 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,4 +21,9 @@ public interface ExpertRepository extends JpaRepository<Expert, Long>, JpaSpecif
            "WHERE e.rateCount > 0 " +
            "ORDER BY (e.totalRate / e.rateCount) DESC")
     List<Expert> findTop20ByAverageRating(Pageable pageable);
+
+    @Query("SELECT COUNT(u) FROM Expert u WHERE u.createdAt BETWEEN :startDate AND :endDate")
+    long countBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+
 }

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSpecificationExecutor<Property> {
@@ -35,4 +36,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long>, JpaSp
     );
 
     List<Property> findTop20ByOrderByViewsCountDesc();
+
+    @Query("SELECT COUNT(u) FROM Property u WHERE u.createdAt BETWEEN :startDate AND :endDate")
+    long countBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
 }
