@@ -2,7 +2,10 @@ package com.graduation.realestateconsulting.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,5 +35,11 @@ public class Client {
 
     @OneToMany(mappedBy = "client",cascade = CascadeType.ALL)
     private List<Booking> booking;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
 }

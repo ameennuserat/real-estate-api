@@ -33,6 +33,10 @@ public class Office {
 
     private double longitude;
 
+    private double totalRate;
+
+    private double rateCount;
+
 //    @NotEmpty(message =  "CommercialRegisterImage must not be Empty")
 //    @NotNull(message =  "CommercialRegisterImage must not be Empty")
     @NotBlank(message =  "CommercialRegisterImage must not be Blank")

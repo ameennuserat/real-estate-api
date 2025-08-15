@@ -3,7 +3,6 @@ package com.graduation.realestateconsulting.services.implement;
 import com.graduation.realestateconsulting.model.dto.request.NotificationRequest;
 import com.graduation.realestateconsulting.model.dto.request.PropertyRequest;
 import com.graduation.realestateconsulting.model.dto.response.PropertyResponse;
-import com.graduation.realestateconsulting.model.entity.Expert;
 import com.graduation.realestateconsulting.model.entity.Property;
 import com.graduation.realestateconsulting.model.entity.PropertyImage;
 import com.graduation.realestateconsulting.model.entity.User;
@@ -51,8 +50,16 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
+    public List<PropertyResponse> findTop20Viewed() {
+        return mapper.toDtos(repository.findTop20ByOrderByViewsCountDesc());
+    }
+
+    @Transactional
+    @Override
     public PropertyResponse findById(Long id) {
-        return repository.findById(id).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Property not found"));
+        Property property = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Property not found"));
+        property.setViewsCount(property.getViewsCount()+1);
+        return mapper.toDto(repository.save(property));
     }
 
     @Transactional

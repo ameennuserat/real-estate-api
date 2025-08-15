@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> , JpaSpecificationExecutor<Ticket> {
@@ -31,4 +32,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> , JpaSpeci
                                @Param("highArea") String highArea,
                                @Param("location") String location
     );
+
+    @Query("SELECT COUNT(u) FROM Ticket u WHERE u.createdAt BETWEEN :startDate AND :endDate")
+    long countBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
 }

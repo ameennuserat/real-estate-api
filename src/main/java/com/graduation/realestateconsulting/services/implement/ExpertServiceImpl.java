@@ -12,6 +12,7 @@ import com.graduation.realestateconsulting.services.ExpertService;
 import com.graduation.realestateconsulting.services.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
@@ -38,6 +39,11 @@ public class ExpertServiceImpl implements ExpertService{
     @Override
     public List<ExpertResponse> findAllByUserStatus(UserStatus status) {
         return mapper.toDtos(repository.findAllByUserStatus(status));
+    }
+
+    @Override
+    public List<ExpertResponse> findTop20Rated() {
+        return mapper.toDtos(repository.findTop20ByAverageRating(PageRequest.of(0,20)));
     }
 
     @Override

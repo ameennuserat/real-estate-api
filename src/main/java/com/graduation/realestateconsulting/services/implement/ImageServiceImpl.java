@@ -28,10 +28,10 @@ public class ImageServiceImpl implements ImageService {
     @PostConstruct
     public void init() {
         File file = new File(uploadImageDirectory);
-        if(!file.exists()) {
+        if (!file.exists()) {
             file.mkdirs();
             System.out.println("Images Directory Created");
-        }else{
+        } else {
             System.out.println("Images Directory Exists");
         }
     }
@@ -48,6 +48,18 @@ public class ImageServiceImpl implements ImageService {
 
         Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 
+        return uniqueFileName;
+    }
+
+    @Override
+    public String uploadBinary(String fileName, byte[] fileData) throws IOException {
+        String uniqueFileName = UUID.randomUUID() + "_" + fileName;
+        String directory = uploadImageDirectory;
+
+        Path filePath = Path.of(directory, uniqueFileName);
+        Files.write(filePath, fileData);
+
+        // هنا يمكنك إرجاع رابط الوصول إلى الملف
         return uniqueFileName;
     }
 

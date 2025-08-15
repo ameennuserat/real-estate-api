@@ -22,5 +22,9 @@ public interface ClientService {
 
     void deleteFavorite(Long id);
 
+    void rateExpert(Long id, double rate);
+
+    void rateOffice(Long id, double rate);
+
     Page<ClientResponse> filterClient(Specification<Client> clientSpecification, Pageable pageable);
 }
