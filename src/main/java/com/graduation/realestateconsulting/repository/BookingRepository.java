@@ -14,8 +14,18 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findAllByExpertIdAndStartTimeBeforeAndEndTimeAfterAndBookingStatusNot(Long expertId, LocalDateTime startDate, LocalDateTime endDate, BookingStatus status);
+    //List<Booking> findAllByBookingStatus(BookingStatus status);
+    @Query("SELECT b FROM Booking b WHERE b.bookingStatus = 'CONFIRMED'  AND b.startTime BETWEEN :now AND :oneHourFromNow")
+    List<Booking> findUpcomingBookingsForReminder(
+            @Param("now") LocalDateTime now,
+            @Param("oneHourFromNow") LocalDateTime oneHourFromNow
+    );
+
+    @Query("SELECT b FROM Booking b WHERE b.bookingStatus = 'CONFIRMED' AND b.endTime <= :now")
+    List<Booking> findFinishedConfirmedBookings(@Param("now") LocalDateTime now);
 
     List<Booking> findAllByExpertIdAndBookingStatus(Long expertId, BookingStatus status);
+    List<Booking> findAllByClientIdAndBookingStatus(Long clientId, BookingStatus status);
 
     @Query("SELECT COUNT(b) FROM Booking b WHERE b.expert.id = :expertId " +
             "AND b.bookingStatus IN  :status " +

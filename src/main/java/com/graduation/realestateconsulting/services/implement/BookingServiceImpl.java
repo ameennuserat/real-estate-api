@@ -136,7 +136,6 @@ public class BookingServiceImpl implements BookingService {
     private PaymentIntent createPaymentIntentAndUpdateBooking(Booking booking, BigDecimal finalPrice) throws StripeException {
         long finalPriceInCents = finalPrice.multiply(BigDecimal.valueOf(100)).longValue();
 
-
         PaymentIntent paymentIntent = paymentService.createPaymentIntent(booking.getId(), finalPriceInCents);
 
         booking.setPaymentIntentId(paymentIntent.getId());
@@ -156,7 +155,13 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponse> getAllBookings(BookingStatus status) {
         try {
             User user = userRepository.findByEmail(jwtService.getCurrentUserName()).orElseThrow();
-            List<Booking> bookings = bookingRepository.findAllByExpertIdAndBookingStatus(user.getExpert().getId(), status);
+            List<Booking> bookings = null;
+            if(user.getRole().equals(Role.EXPERT)) {
+                bookings = bookingRepository.findAllByExpertIdAndBookingStatus(user.getExpert().getId(), status);
+            }
+            
+            else {   bookings = bookingRepository.findAllByClientIdAndBookingStatus(user.getClient().getId(), status); }
+
             return bookingMapper.toDtos(bookings);
         } catch (Exception e) {
             throw new RuntimeException("you don't have any bookings for " + jwtService.getCurrentUserName());

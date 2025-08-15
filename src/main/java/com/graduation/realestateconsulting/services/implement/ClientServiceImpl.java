@@ -1,5 +1,6 @@
 package com.graduation.realestateconsulting.services.implement;
 
+import com.graduation.realestateconsulting.model.dto.request.NotificationRequest;
 import com.graduation.realestateconsulting.model.dto.response.ClientResponse;
 import com.graduation.realestateconsulting.model.entity.*;
 import com.graduation.realestateconsulting.model.mapper.ClientMapper;
@@ -7,6 +8,7 @@ import com.graduation.realestateconsulting.repository.ClientRepository;
 import com.graduation.realestateconsulting.repository.ExpertRepository;
 import com.graduation.realestateconsulting.repository.OfficeRepository;
 import com.graduation.realestateconsulting.repository.RateRepository;
+import com.graduation.realestateconsulting.services.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ public class ClientServiceImpl implements ClientService {
     private final OfficeRepository officeRepository;
     private final RateRepository rateRepository;
     private final ClientMapper mapper;
+    private final NotificationService notificationService;
 
     @Override
     public Page<ClientResponse> findAll(Pageable pageable) {
@@ -67,6 +70,14 @@ public class ClientServiceImpl implements ClientService {
         client.setFollowers(updatedFollowIds);
         repository.save(client);
 
+        // send notification to expert
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .title("New follower")
+                .message(String.format("%s has just started following you", client.getUser().getFirstName() + " " + client.getUser().getLastName()))
+                .user(expert.getUser())
+                .build();
+        notificationService.createAndSendNotification(notificationRequest);
+
         updateExpertFollowerCount(expert, 1);
     }
 
@@ -85,6 +96,13 @@ public class ClientServiceImpl implements ClientService {
 
         client.setFavorites(updatedFavoriteIds);
         repository.save(client);
+
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .title("New favorite")
+                .message("has been added to your favorites")
+                .user(client.getUser())
+                .build();
+        notificationService.createAndSendNotification(notificationRequest);
 
         updateExpertFavoriteCount(expert, 1);
     }

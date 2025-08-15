@@ -40,54 +40,54 @@ public class BookingMapper {
     }
 
     public Booking toEntity(BookingRequest request, Expert expert, Client client, LocalDateTime startTime, LocalDateTime endTime, BigDecimal originalPrice, DiscountResult discountResult) {
-         return Booking.builder()
-                 .expert(expert)
-                 .client(client)
-                 .startTime(startTime)
-                 .endTime(endTime)
-                 .duration(request.getDuration())
-                 .callType(request.getCallType())
-                 .bookingStatus(BookingStatus.PENDING)
-                 .originalPrice(originalPrice)
-        .discountAmount(discountResult.discountAmount())
-                 .finalPrice(discountResult.finalPrice())
-                 .coupon(discountResult.appliedCoupon() != null ?
-                         discountResult.appliedCoupon():
-                         null)
-                 .build();
-     }
+        return Booking.builder()
+                .expert(expert)
+                .client(client)
+                .startTime(startTime)
+                .endTime(endTime)
+                .duration(request.getDuration())
+                .callType(request.getCallType())
+                .bookingStatus(BookingStatus.PENDING)
+                .originalPrice(originalPrice)
+                .discountAmount(discountResult.discountAmount())
+                .finalPrice(discountResult.finalPrice())
+                .coupon(discountResult.appliedCoupon() != null ?
+                        discountResult.appliedCoupon() :
+                        null)
+                .build();
+    }
 
-     public BookingResponse toDto(Booking booking , Optional<String> clientSecret){
-         return BookingResponse.builder()
-                 .id(booking.getId())
-                 .callType(booking.getCallType())
-                 .duration(booking.getDuration())
-                 .clientSecret(clientSecret.orElse(null))
-                 .cancellationReason(booking.getCancellationReason())
-                 .scheduled_at(booking.getScheduled_at())
-                 .finalPrice(booking.getFinalPrice())
-                 .discountAmount(booking.getDiscountAmount())
-                 .originalPrice(booking.getOriginalPrice())
-                 .cancelled_at(booking.getCancelled_at())
-                 .refundStatus(booking.getRefundStatus())
-                 .bookingStatus(booking.getBookingStatus())
-                 .cancelled_by(Optional.ofNullable(booking.getUser())
-                         .map(userMapper::toDto)
-                         .orElse(null)
-                 )
-                 .expert(expertMapper.toDto(booking.getExpert()))
-                 .client(clientMapper.toDto(booking.getClient()))
-                 .startTime(booking.getStartTime())
-                 .endTime(booking.getEndTime())
-                 .feedback(  Optional.ofNullable(booking.getBookingFeedback())
-                         .map(feedbackMapper::toDto)
-                         .orElse(null))
-                 .build();
-     }
+    public BookingResponse toDto(Booking booking, Optional<String> clientSecret) {
+        return BookingResponse.builder()
+                .id(booking.getId())
+                .callType(booking.getCallType())
+                .duration(booking.getDuration())
+                .clientSecret(clientSecret.orElse(null))
+                .cancellationReason(booking.getCancellationReason())
+                .scheduled_at(booking.getScheduled_at())
+                .finalPrice(booking.getFinalPrice())
+                .discountAmount(booking.getDiscountAmount())
+                .originalPrice(booking.getOriginalPrice())
+                .cancelled_at(booking.getCancelled_at())
+                .refundStatus(booking.getRefundStatus())
+                .bookingStatus(booking.getBookingStatus())
+                .cancelled_by(Optional.ofNullable(booking.getUser())
+                        .map(userMapper::toDto)
+                        .orElse(null)
+                )
+                .expert(expertMapper.toDto(booking.getExpert()))
+                .client(clientMapper.toDto(booking.getClient()))
+                .startTime(booking.getStartTime())
+                .endTime(booking.getEndTime())
+                .feedback(Optional.ofNullable(booking.getBookingFeedback())
+                        .map(feedbackMapper::toDto)
+                        .orElse(null))
+                .build();
+    }
 
-     public List<BookingResponse> toDtos(List<Booking> bookings){
-         return bookings.stream().map(this::toDto).collect(Collectors.toList());
-     }
+    public List<BookingResponse> toDtos(List<Booking> bookings) {
+        return bookings.stream().map(this::toDto).collect(Collectors.toList());
+    }
 //    @Mappings({
 //            @Mapping(target = "startTime", source = "startTime"),
 //            @Mapping(target = "endTime", source = "endTime"),

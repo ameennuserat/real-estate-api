@@ -50,6 +50,10 @@ public class User implements UserDetails {
 
     private String imageUrl;
 
+    private int warnsCount;
+
+    private int blocksCount;
+
     @Column(name = "fcm_token")
     private String fcmToken;
 

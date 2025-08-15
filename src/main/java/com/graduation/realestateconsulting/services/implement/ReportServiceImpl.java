@@ -100,32 +100,6 @@ public class ReportServiceImpl implements ReportService {
 
         userManagementService.blockUser(report.getReportedUser().getId(), 15);
 
-        // to all Admins
-        String adminTitle = "User Blocked";
-        String adminMessage = String.format(
-                "An administrator has blocked the user %s (%s) for 15 days.",
-                reportedUser.getFirstName(),
-                reportedUser.getEmail()
-        );
-        List<User> admins = userRepository.findAllByRole(Role.ADMIN);
-        for (User user : admins) {
-            NotificationRequest notificationRequest = NotificationRequest.builder()
-                    .title(adminTitle)
-                    .message(adminMessage)
-                    .user(user)
-                    .build();
-            notificationService.createAndSendNotification(notificationRequest);
-        }
-
-        // to user by email
-        String userBlockedSubject = "Account Blocked";
-        String userBlockedBody = String.format(
-                "Dear %s,\n\nWe regret to inform you that your account has been temporarily blocked for 15 days due to a violation of our platform guidelines.\nThe block will expire on: %s",
-                reportedUser.getFirstName(),
-                LocalDateTime.now().plusDays(15).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        );
-        SentEmailMessageRequest request = SentEmailMessageRequest.builder().to(reportedUser.getEmail()).subject(userBlockedSubject).body(userBlockedBody).build();
-        publisher.publishEvent(new GmailNotificationEvent(this, request));
 
         List<Report> allReportsForThisUser = reportRepository.findByReportedUser(reportedUser);
         if (!allReportsForThisUser.isEmpty()) {
@@ -150,16 +124,7 @@ public class ReportServiceImpl implements ReportService {
         if (!allReportsForThisUser.isEmpty()) {
             reportRepository.deleteAll(allReportsForThisUser);
         }
-        String title = "Account Warning";
-        String message = "This is a warning regarding your recent activity which violates our platform's policies.";
 
-        notificationService.createAndSendNotification(NotificationRequest.builder()
-                .user(reportedUser)
-                .title(title)
-                .message(message)
-                .build());
-
-        //TODO create warns table and register user's warns in it
     }
 
 
