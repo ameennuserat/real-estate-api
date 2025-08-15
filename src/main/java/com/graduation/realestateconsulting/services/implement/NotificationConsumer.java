@@ -19,7 +19,7 @@ public class NotificationConsumer {
         try {
             firebaseService.sendNotification(request, request.platform());
         } catch (Exception e) {
-            System.err.println("Failed to process push notification from queue: " + e.getMessage());
+          throw new IllegalArgumentException(e);
         }
     }
 }

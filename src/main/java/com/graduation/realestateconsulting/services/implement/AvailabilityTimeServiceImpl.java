@@ -33,10 +33,9 @@ public class AvailabilityTimeServiceImpl implements AvailabilityTimeService {
 
     @Override
     public List<LocalTime> findAvailablePeriods(AvailableTimeToBookingRequest request) {
-        // 1. حساب فترات الإتاحة الفعلية للخبير في اليوم المحدد.
-        // هذه تأخذ في الاعتبار ساعات العمل القياسية والاستثناءات (إجازات أو ساعات إضافية).
+        //  حساب فترات الإتاحة الفعلية للخبير في اليوم المحدد
         List<TimeBlock> effectiveAvailabilityBlocks = calculateEffectiveAvailability(request.getExpertId(), request.getDate());
-        // 2. جلب الحجوزات القائمة (العوائق) لهذا الخبير في هذا اليوم.
+        //  جلب الحجوزات القائمة (العوائق) لهذا الخبير في هذا اليوم.
         // يتم استبعاد الحجوزات الملغاة.
         List<TimeBlock> bookedSlots = getBookedObstacles(request.getExpertId(), request.getDate());
 
@@ -45,7 +44,7 @@ public class AvailabilityTimeServiceImpl implements AvailabilityTimeService {
 
         // 4. تحديد أصغر فاصل زمني للتحقق من الفتحات (مثلاً، كل 15 دقيقة).
         // هذا يسمح بإيجاد فتحات تبدأ في أوقات مختلفة حتى لو كانت مدة الجلسة أطول.
-        int slotIncrementInMinutes = request.getDuration(); // يمكن جعله قابلاً للتكوين أو مرتبطاً بأصغر مدة حجز
+        int slotIncrementInMinutes = request.getDuration();
 
         // 5. المرور على كل فترة إتاحة فعلية للبحث عن فتحات.
         for (TimeBlock effectiveBlock : effectiveAvailabilityBlocks) {
@@ -64,7 +63,7 @@ public class AvailabilityTimeServiceImpl implements AvailabilityTimeService {
                 for (TimeBlock bookedSlot : bookedSlots) {
                     if (potentialSlot.overlaps(bookedSlot)) {
                         overlapsWithBooking = true;
-                        break; // لا داعي للتحقق من حجوزات أخرى لهذه الفتحة.
+                        break;
                     }
                 }
 
@@ -73,32 +72,27 @@ public class AvailabilityTimeServiceImpl implements AvailabilityTimeService {
                     availableStartTimes.add(currentPotentialStartTime.toLocalTime());
                 }
 
-                // انتقل إلى وقت البدء المحتمل التالي.
                 currentPotentialStartTime = currentPotentialStartTime.plusMinutes(slotIncrementInMinutes);
             }
         }
 
-        // 6. الحصول على الوقت والتاريخ الحاليين.
-        LocalDateTime currentSystemDateTime = LocalDateTime.now(); // مهم: انتبه للمناطق الزمنية
 
-        // 7. استدعاء التابع المساعد لتصفية الأوقات وفرزها.
+        LocalDateTime currentSystemDateTime = LocalDateTime.now();
+
         return filterAndSortFuturePeriods(availableStartTimes, request.getDate(), currentSystemDateTime);
     }
 
-
+    // Get the actual working hours of the expert
     @Override
     public List<TimeBlock> calculateEffectiveAvailability(Long expertId, LocalDate date) {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         System.out.println(dayOfWeek);
         List<TimeBlock> baseWorkingBlocks = new ArrayList<>();
 
-        // أ. جلب ساعات العمل القياسية (WorkingHours) لهذا اليوم.
-        // بناءً على توضيحك، نتوقع سطراً واحداً على الأكثر من هذا الاستعلام.
         WorkingTimes workingHoursOpt = workingTimesRepository
                 .findByExpertIdAndDayOfWeek(expertId, dayOfWeek).orElseThrow(() -> new IllegalArgumentException("this day not available")); // افترض أن هذا التابع يُرجع List
 //        if (workingHoursOpt.isPresent()) {
         // WorkingHoursEntity wh = workingHoursOpt.get();
-        // التحقق من أن وقت البدء قبل وقت النهاية في WorkingHoursEntity
         if (workingHoursOpt.getStartTime().isBefore(workingHoursOpt.getEndTime())) {
             baseWorkingBlocks.add(new TimeBlock(
                     LocalDateTime.of(date, workingHoursOpt.getStartTime()),
@@ -140,6 +134,7 @@ public class AvailabilityTimeServiceImpl implements AvailabilityTimeService {
         return mergeAndSortTimeBlocks(currentEffectiveBlocks);
     }
 
+    // Deduct a period of time from the availability periods
     private static List<TimeBlock> getTimeBlocks(AvailabilityExceptions blockerEx, List<TimeBlock> currentEffectiveBlocks) {
         TimeBlock blockerPeriod = new TimeBlock(blockerEx.getStartTime(), blockerEx.getEndTime());
         List<TimeBlock> nextIterationBlocks = new ArrayList<>();
@@ -165,6 +160,7 @@ public class AvailabilityTimeServiceImpl implements AvailabilityTimeService {
         return nextIterationBlocks;
     }
 
+    // get all period in this day
     @Override
     public List<TimeBlock> getBookedObstacles(Long expertId, LocalDate date) {
         LocalDateTime dayStartBoundary = date.atStartOfDay();

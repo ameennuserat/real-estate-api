@@ -27,14 +27,13 @@ public class StripeWebhookController {
     public ResponseEntity<String> handleStripeWebhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
         Event event;
         try {
-            // 1. التحقق من أن الطلب قادم من Stripe وليس جهة أخرى (باستخدام مفتاح التوقيع)
             event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
         } catch (SignatureVerificationException e) {
             logger.warn("⚠️  Webhook signature verification failed.", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
         }
 
-                webhookService.handleFinalPaymentStatus (event,event.getType());
+        webhookService.handleFinalPaymentStatus (event,event.getType());
 
         return ResponseEntity.ok().build();
     }

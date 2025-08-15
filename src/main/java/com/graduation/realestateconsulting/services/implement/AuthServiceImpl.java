@@ -86,6 +86,9 @@ public class AuthServiceImpl implements AuthService {
             publisher.publishEvent(new CreateExpertEvent(this, request, savedUser, request.getIdCardImage(), request.getDegreeCertificateImage()));
         }
         publisher.publishEvent(new GmailNotificationEvent(this, SentEmailMessageRequest.builder().to(savedUser.getEmail()).body(savedUser.getVerificationCode()).subject("Verification your account").build()));
+
+
+
         return RegisterResponse.builder()
                 .id(savedUser.getId())
                 .firstName(savedUser.getFirstName())
@@ -93,6 +96,8 @@ public class AuthServiceImpl implements AuthService {
                 .email(savedUser.getEmail())
                 .phone(savedUser.getPhone())
                 .role(savedUser.getRole())
+                .blocksCount(savedUser.getBlocksCount())
+                .warnsCount(savedUser.getWarnsCount())
                 .build();
     }
 

@@ -12,4 +12,6 @@ public class RegisterResponse {
     private String email;
     private String phone;
     private Role role;
+    private int warnsCount;
+    private int blocksCount;
 }
