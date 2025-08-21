@@ -6,6 +6,7 @@ import com.graduation.realestateconsulting.model.dto.response.BookingResponse;
 import com.graduation.realestateconsulting.model.entity.Booking;
 import com.graduation.realestateconsulting.model.entity.Client;
 import com.graduation.realestateconsulting.model.entity.Expert;
+import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.BookingStatus;
 import com.graduation.realestateconsulting.model.enums.CallType;
 import com.graduation.realestateconsulting.services.implement.BookingServiceImpl;
@@ -39,7 +40,7 @@ public class BookingMapper {
         return toDto(booking, Optional.empty());
     }
 
-    public Booking toEntity(BookingRequest request, Expert expert, Client client, LocalDateTime startTime, LocalDateTime endTime, BigDecimal originalPrice, DiscountResult discountResult) {
+    public Booking toEntity(BookingRequest request, Expert expert, User client, LocalDateTime startTime, LocalDateTime endTime, BigDecimal originalPrice, DiscountResult discountResult) {
         return Booking.builder()
                 .expert(expert)
                 .client(client)
@@ -76,7 +77,7 @@ public class BookingMapper {
                         .orElse(null)
                 )
                 .expert(expertMapper.toDto(booking.getExpert()))
-                .client(clientMapper.toDto(booking.getClient()))
+                .client(userMapper.toDto(booking.getClient()))
                 .startTime(booking.getStartTime())
                 .endTime(booking.getEndTime())
                 .feedback(Optional.ofNullable(booking.getBookingFeedback())

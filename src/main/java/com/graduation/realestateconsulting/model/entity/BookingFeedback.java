@@ -32,7 +32,7 @@ public class BookingFeedback {
 
     @ManyToOne
     @JoinColumn(name = "rated_by",referencedColumnName = "id")
-    private Client client;
+    private User client;
 
     @CreationTimestamp
     private LocalDateTime created_at;

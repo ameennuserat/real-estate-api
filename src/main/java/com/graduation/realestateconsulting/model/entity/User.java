@@ -65,9 +65,16 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Expert expert;
-
+    // for how cancel
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> booking;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<BookingFeedback> bookingFeedback;
+
+    // for how booking
+    @OneToMany(mappedBy = "client",cascade = CascadeType.ALL)
+    private List<Booking> booking1;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

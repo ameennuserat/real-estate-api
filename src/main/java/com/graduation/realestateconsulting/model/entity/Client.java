@@ -30,11 +30,6 @@ public class Client {
     @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE)
     private List<Ticket> ticketList;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
-    private List<BookingFeedback> bookingFeedback;
-
-    @OneToMany(mappedBy = "client",cascade = CascadeType.ALL)
-    private List<Booking> booking;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

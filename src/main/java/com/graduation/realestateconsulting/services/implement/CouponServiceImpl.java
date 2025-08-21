@@ -189,7 +189,7 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     @Transactional(readOnly = true)
-    public CouponEntity validateAndGetCoupon(String code, Client client, Expert expert) {
+    public CouponEntity validateAndGetCoupon(String code, User client, Expert expert) {
 
         CouponEntity localCoupon = couponRepository.findByCode(code.toUpperCase())
                 .orElseThrow(() -> new InvalidCouponException("Coupon code '" + code + "' not found."));

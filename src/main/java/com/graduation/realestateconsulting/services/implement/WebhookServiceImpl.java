@@ -67,7 +67,7 @@ public class WebhookServiceImpl implements WebhookService {
                         System.out.println("Coupon " + usedCoupon.getCode() + " usage incremented.");
                     }
 
-                    User clientUser = booking.getClient().getUser();
+                    User clientUser = booking.getClient();
                     User expertUser = booking.getExpert().getUser();
                     Integer duration = booking.getDuration();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy 'at' h:mm a", Locale.ENGLISH);
@@ -96,7 +96,7 @@ public class WebhookServiceImpl implements WebhookService {
                 } else {
                     booking.setBookingStatus(BookingStatus.CANCELED);
                     try {
-                        User clientUser = booking.getClient().getUser();
+                        User clientUser = booking.getClient();
                         User expertUser = booking.getExpert().getUser();
 
 
