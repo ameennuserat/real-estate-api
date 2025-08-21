@@ -71,7 +71,7 @@ public class FiltersSpecificationService<T> {
                         break;
 
                     case LIKE_NAME:
-                        Expression<String> getFullName = criteriaBuilder.concat(root.join("user").get("firstName"), criteriaBuilder.concat(" ", root.join("user").get("lastName")));
+                        Expression<String> getFullName = criteriaBuilder.concat(root.join(requestDto.getJoinTable()).get("firstName"), criteriaBuilder.concat(" ", root.join(requestDto.getJoinTable()).get("lastName")));
                         Predicate fullName = criteriaBuilder.like(criteriaBuilder.lower(getFullName), "%" + requestDto.getValue().toLowerCase() + "%");
                         predicates.add(fullName);
                         break;
