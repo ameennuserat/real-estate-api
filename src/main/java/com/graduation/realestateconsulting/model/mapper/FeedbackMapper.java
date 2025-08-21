@@ -5,6 +5,7 @@ import com.graduation.realestateconsulting.model.dto.response.FeedbackResponse;
 import com.graduation.realestateconsulting.model.entity.Booking;
 import com.graduation.realestateconsulting.model.entity.BookingFeedback;
 import com.graduation.realestateconsulting.model.entity.Client;
+import com.graduation.realestateconsulting.model.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 public class FeedbackMapper {
 
 
-    public BookingFeedback toEntity(FeedbackRequest feedbackRequest,Booking booking,Client client) {
+    public BookingFeedback toEntity(FeedbackRequest feedbackRequest, Booking booking, User client) {
         return BookingFeedback.builder()
                 .rating(feedbackRequest.getRating())
                 .review(feedbackRequest.getReview())

@@ -35,6 +35,9 @@ public class Expert {
 
     private String bio;
 
+    @Builder.Default
+    private boolean newExpert = true;
+
     @Column(name = "per_minute_price_video")
     private Double perMinuteVideo;
 

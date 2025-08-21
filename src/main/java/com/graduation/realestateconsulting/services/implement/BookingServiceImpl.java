@@ -51,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
 
 
         Expert expert = expertRepository.findById(request.getExpertId()).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
-        Client client = clientRepository.findById(request.getClientId()).orElseThrow(() -> new IllegalArgumentException("Client not found"));
+        User client = userRepository.findById(request.getClientId()).orElseThrow(() -> new IllegalArgumentException("Client not found"));
         LocalDateTime startTime = request.getStartDate();
         LocalDateTime endTime = startTime.plusMinutes(request.getDuration());
 
@@ -88,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
-    private DiscountResult applyCouponIfPresent(BigDecimal originalPrice, String couponCode, Client client, Expert expert) {
+    private DiscountResult applyCouponIfPresent(BigDecimal originalPrice, String couponCode, User client, Expert expert) {
         if (couponCode == null || couponCode.isEmpty()) {
             return new DiscountResult(originalPrice, BigDecimal.ZERO, null);
         }

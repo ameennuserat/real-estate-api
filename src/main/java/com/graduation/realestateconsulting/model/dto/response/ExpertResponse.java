@@ -20,5 +20,6 @@ public class ExpertResponse {
     private Double perMinuteAudio;
     private Integer followersCount;
     private Integer favoritesCount;
+    private boolean newExpert;
 
 }

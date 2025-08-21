@@ -17,6 +17,8 @@ public interface ExpertRepository extends JpaRepository<Expert, Long>, JpaSpecif
 
     List<Expert> findAllByUserStatus(UserStatus status);
 
+    List<Expert> findAllByNewExpert(boolean newExpert);
+
     @Query("SELECT e FROM Expert e " +
            "WHERE e.rateCount > 0 " +
            "ORDER BY (e.totalRate / e.rateCount) DESC")

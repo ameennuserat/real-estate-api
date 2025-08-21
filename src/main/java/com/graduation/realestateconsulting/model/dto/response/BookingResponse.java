@@ -1,5 +1,6 @@
 package com.graduation.realestateconsulting.model.dto.response;
 
+import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.BookingStatus;
 import com.graduation.realestateconsulting.model.enums.CallType;
 import com.graduation.realestateconsulting.model.enums.RefundStatus;
@@ -15,7 +16,7 @@ import java.time.LocalTime;
 @Builder
 public class BookingResponse {
     private Long id;
-    private ClientResponse client;
+    private UserResponse client;
     private ExpertResponse expert;
     private String clientSecret;
     private CallType callType;
