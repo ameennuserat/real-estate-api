@@ -52,6 +52,9 @@ public class Expert {
 
     private Integer favoritesCount;
 
+    @Column(name = "stripe_account_id", unique = true)
+    private String stripeAccountId;
+
     @NotBlank(message =  "DegreeCertificateImage must not be blank")
     @Column(name = "degree_certificate_image")
     private String degreeCertificateImage;

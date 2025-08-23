@@ -59,6 +59,7 @@ public class WebhookServiceImpl implements WebhookService {
 
                 if ("payment_intent.succeeded".equals(eventType)) {
                     booking.setBookingStatus(BookingStatus.CONFIRMED);
+                    booking.setPaymentChargeId(paymentIntent.getLatestCharge());
                     System.out.println("Booking " + booking.getId() + " has been confirmed!");
                     if (booking.getCoupon() != null) {
                         CouponEntity usedCoupon = booking.getCoupon();

@@ -44,12 +44,26 @@ public class BookingController {
     }
 
     @Operation(
-            summary = "Get all booking by Status "
+            summary = "Get all bookings for the expert by status",
+            description = "This endpoint retrieves all bookings made with the currently authenticated expert, filtered by the given status."
     )
     @GetMapping("/all/{status}")
     public ResponseEntity<?> findAll(@PathVariable BookingStatus status) {
         GlobalResponse response = GlobalResponse.builder()
                 .data(bookingService.getAllBookings(status))
+                .status("SUCCESS")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Get my bookings by status",
+            description = "This endpoint retrieves all bookings created by the currently authenticated user (client), filtered by the given status."
+    )
+    @GetMapping("/my/{status}")
+    public ResponseEntity<?> getMyBookings(@PathVariable BookingStatus status) {
+        GlobalResponse response = GlobalResponse.builder()
+                .data(bookingService.getMyBookings(status))
                 .status("SUCCESS")
                 .build();
         return ResponseEntity.ok(response);

@@ -8,6 +8,7 @@ import com.graduation.realestateconsulting.model.entity.Booking;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -52,4 +53,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT COUNT(u) FROM Booking u WHERE u.scheduled_at BETWEEN :startDate AND :endDate")
     long countBetweenDates(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
+    @Query("SELECT b FROM Booking b WHERE b.endTime < :currentTime AND b.bookingStatus = :status")
+    List<Booking> findFinishedBookingsWithStatus(
+            @Param("currentTime") Instant currentTime,
+            @Param("status") BookingStatus status
+    );
 }

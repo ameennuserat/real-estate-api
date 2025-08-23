@@ -82,7 +82,7 @@ public class CouponController {
                                     schema = @Schema(implementation = GlobalResponse.class)))
             }
     )
-    @PreAuthorize("hasAuthority('ADMIN')")
+   // @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAllCoupons() {
         GlobalResponse globalResponse = GlobalResponse.builder()

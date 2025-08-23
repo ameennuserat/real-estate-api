@@ -160,7 +160,20 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByExpertIdAndBookingStatus(user.getExpert().getId(), status);
             }
             
-            else {   bookings = bookingRepository.findAllByClientIdAndBookingStatus(user.getClient().getId(), status); }
+//            else {   bookings = bookingRepository.findAllByClientIdAndBookingStatus(user.getClient().getId(), status); }
+
+            return bookingMapper.toDtos(bookings);
+        } catch (Exception e) {
+            throw new RuntimeException("you don't have any bookings for " + jwtService.getCurrentUserName());
+        }
+    }
+
+    @Override
+    public List<BookingResponse> getMyBookings(BookingStatus status) {
+        try {
+            User user = userRepository.findByEmail(jwtService.getCurrentUserName()).orElseThrow();
+            List<Booking> bookings = null;
+                bookings = bookingRepository.findAllByClientIdAndBookingStatus(user.getId(), status);
 
             return bookingMapper.toDtos(bookings);
         } catch (Exception e) {
@@ -216,4 +229,6 @@ public class BookingServiceImpl implements BookingService {
         booking.setUser(user);
         return bookingMapper.toDto(bookingRepository.save(booking));
     }
+
+
 }

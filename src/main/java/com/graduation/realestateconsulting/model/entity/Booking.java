@@ -90,4 +90,7 @@ public class Booking {
 
     @Column(name = "payment_intent_id")
     private String paymentIntentId;
+
+    @Column(name = "payment_charge_id")
+    private String paymentChargeId;
 }
