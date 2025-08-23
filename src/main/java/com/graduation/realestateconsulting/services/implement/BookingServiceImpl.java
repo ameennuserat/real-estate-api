@@ -55,6 +55,13 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime startTime = request.getStartDate();
         LocalDateTime endTime = startTime.plusMinutes(request.getDuration());
 
+        if(request.getCallType().equals(CallType.AUDIO) && expert.getPerMinuteAudio() == null){
+            throw new IllegalArgumentException("Expert has no perMinuteAudio");
+        }
+
+        if(request.getCallType().equals(CallType.VIDEO) && expert.getPerMinuteVideo() == null){
+            throw new IllegalArgumentException("Expert has no perMinuteVideo");
+        }
 
         validateTimeSlot(expert.getId(), startTime, endTime);
 
