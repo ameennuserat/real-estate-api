@@ -66,6 +66,7 @@ public class CouponServiceImpl implements CouponService {
                 .maxUses(request.maxUses())
                 .expirationDate(request.expirationDate() != null ? request.expirationDate().atStartOfDay() : null)
                 .isActive(request.isActive())
+                .timesUsed(0L)
                 .expert(creator.getRole() == Role.EXPERT ? creator.getExpert() : null)
                 .build();
 
@@ -288,5 +289,11 @@ public class CouponServiceImpl implements CouponService {
                 }
                 break;
         }
+    }
+
+    @Override
+    public List<CouponResponse> getGeneralCoupons() {
+        List<CouponEntity> couponEntities = couponRepository.findAllByExpertNull();
+        return mapper.toDtos(couponEntities);
     }
 }

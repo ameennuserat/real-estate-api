@@ -17,6 +17,7 @@ public interface CouponService {
     List<CouponResponse> getAllCoupons();
     CouponResponse getCouponById(Long couponId);
     CouponEntity validateAndGetCoupon(String code, User client, Expert expert);
+    List<CouponResponse> getGeneralCoupons();
     // يمكنك إضافة توابع أخرى هنا مستقبلاً مثل:
     // void deactivateCoupon(Long couponId, User creator);
     // List<CouponResponseDTO> findCouponsByExpert(Long expertId);
