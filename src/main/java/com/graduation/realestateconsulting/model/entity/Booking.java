@@ -75,7 +75,7 @@ public class Booking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", referencedColumnName = "id")
-    private Client client;
+    private User client;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_id", referencedColumnName = "id")
@@ -90,4 +90,7 @@ public class Booking {
 
     @Column(name = "payment_intent_id")
     private String paymentIntentId;
+
+    @Column(name = "payment_charge_id")
+    private String paymentChargeId;
 }

@@ -17,4 +17,6 @@ public class UserResponse {
     private Role role;
     private UserStatus status;
     private String imageUrl;
+    private int warnsCount;
+    private int blocksCount;
 }

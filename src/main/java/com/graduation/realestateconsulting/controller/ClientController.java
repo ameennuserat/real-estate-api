@@ -1,10 +1,15 @@
 package com.graduation.realestateconsulting.controller;
 
+import com.graduation.realestateconsulting.filter.dto.FilterRequestDto;
+import com.graduation.realestateconsulting.filter.dto.PageRequestDto;
+import com.graduation.realestateconsulting.filter.service.FiltersSpecificationService;
 import com.graduation.realestateconsulting.model.dto.response.GlobalResponse;
+import com.graduation.realestateconsulting.model.entity.Client;
 import com.graduation.realestateconsulting.services.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +20,19 @@ import org.springframework.web.bind.annotation.*;
 public class ClientController {
 
     private final ClientService service;
+
+    private final FiltersSpecificationService<Client> clientFilter;
+
+    @PostMapping("/filter")
+    public  ResponseEntity<?> filterClient(@RequestBody FilterRequestDto request) {
+        Specification<Client> clientSpecification =  clientFilter.getSearchSpecification(request.getFilterItems(),request.getGlobalOperator());
+        Pageable pageable = new PageRequestDto().getPageable(request.getPageRequest());
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data(service.filterClient(clientSpecification,pageable))
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping
     public ResponseEntity<?> findAll(@RequestParam(value = "page",defaultValue = "0") int page,
@@ -61,6 +79,26 @@ public class ClientController {
         GlobalResponse response = GlobalResponse.builder()
                 .status("Success")
                 .data("Favorite created successfully")
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/rate-expert/{expertId}")
+    public ResponseEntity<?> rateExpert(@PathVariable Long expertId, @RequestParam double rate) {
+        service.rateExpert(expertId, rate);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data("Expert rated successfully")
+                .build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/rate-office/{officeId}")
+    public ResponseEntity<?> rateOffice(@PathVariable Long officeId, @RequestParam double rate) {
+        service.rateOffice(officeId, rate);
+        GlobalResponse response = GlobalResponse.builder()
+                .status("Success")
+                .data("Office rated successfully")
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

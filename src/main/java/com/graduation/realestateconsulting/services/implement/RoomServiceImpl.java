@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +44,8 @@ public class RoomServiceImpl implements RoomService {
             }
 
             responses.add(UserRoomResponse.builder()
+                    .id(r.getId())
                     .otherUser(userMapper.toDto(u))
-                    .roomKey(r.getRoomKey())
                     .createdAt(r.getCreatedAt())
                     .build());
 
@@ -74,14 +75,20 @@ public class RoomServiceImpl implements RoomService {
         }
         String key = id1 + "_" + id2;
 
-        if (repo.findByRoomKey(key).isPresent()) {
-            throw new IllegalStateException("Room with key: "+key+" already exists");
+        Optional<Room> existRoom = repo.findByRoomKey(key);
+        if (existRoom.isPresent()) {
+//            throw new IllegalArgumentException("Room with key: "+key+" already exists");
+            return mapper.toDto(existRoom.get());
         }
 
+        User user1 = userRepo.findById(id1).orElseThrow(() -> new IllegalArgumentException("user1 not found"));
+        User user2 = userRepo.findById(id2).orElseThrow(() -> new IllegalArgumentException("user2 not found"));
+
         Room room = Room.builder()
-                .user1(User.builder().id(id1).build())
-                .user2(User.builder().id(id2).build())
+                .user1(user1)
+                .user2(user2)
                 .roomKey(key)
+                .status(RoomStatus.UNLOCKED)
                 .build();
 
         Room savedRoom = repo.save(room);

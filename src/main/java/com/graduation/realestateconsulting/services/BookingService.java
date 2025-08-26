@@ -14,6 +14,7 @@ public interface BookingService {
     BookingResponse initiateBooking(BookingRequest bookingRequest) throws IllegalAccessException, StripeException;
     BookingResponse getBooking(Long id);
     List<BookingResponse> getAllBookings(BookingStatus status);
+    List<BookingResponse> getMyBookings(BookingStatus status);
     BookingResponse cancleBookingWithRefundMony(CancleRequest request) throws IllegalAccessException, StripeException;
     BookingResponse cancleBookingWithoutRefundMony(CancleRequest request) throws IllegalAccessException;
 }

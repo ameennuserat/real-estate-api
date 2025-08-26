@@ -3,7 +3,10 @@ package com.graduation.realestateconsulting.model.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -32,6 +35,9 @@ public class Expert {
 
     private String bio;
 
+    @Builder.Default
+    private boolean newExpert = true;
+
     @Column(name = "per_minute_price_video")
     private Double perMinuteVideo;
 
@@ -45,6 +51,9 @@ public class Expert {
     private Integer followersCount;
 
     private Integer favoritesCount;
+
+    @Column(name = "stripe_account_id", unique = true)
+    private String stripeAccountId;
 
     @NotBlank(message =  "DegreeCertificateImage must not be blank")
     @Column(name = "degree_certificate_image")
@@ -61,4 +70,10 @@ public class Expert {
 
     @OneToMany(mappedBy = "expert", cascade = CascadeType.ALL)
     private List<CouponEntity> couponEntities;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

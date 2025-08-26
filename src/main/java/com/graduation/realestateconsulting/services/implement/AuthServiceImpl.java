@@ -5,15 +5,25 @@ import com.graduation.realestateconsulting.exceptions.newExceptions.AccountBlock
 import com.graduation.realestateconsulting.model.dto.request.*;
 import com.graduation.realestateconsulting.model.dto.response.LoginResponse;
 import com.graduation.realestateconsulting.model.dto.response.RefreshTokenResponse;
+import com.graduation.realestateconsulting.model.dto.response.RegisterResponse;
 import com.graduation.realestateconsulting.model.dto.response.UserStatusResponse;
+import com.graduation.realestateconsulting.model.entity.Client;
+import com.graduation.realestateconsulting.model.entity.Expert;
+import com.graduation.realestateconsulting.model.entity.Office;
 import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.Role;
 import com.graduation.realestateconsulting.model.enums.UserStatus;
+import com.graduation.realestateconsulting.model.mapper.ClientMapper;
+import com.graduation.realestateconsulting.model.mapper.ExpertMapper;
+import com.graduation.realestateconsulting.model.mapper.OfficeMapper;
 import com.graduation.realestateconsulting.model.mapper.UserMapper;
 import com.graduation.realestateconsulting.observer.events.CreateClientEvent;
 import com.graduation.realestateconsulting.observer.events.CreateExpertEvent;
 import com.graduation.realestateconsulting.observer.events.CreateOfficeEvent;
 import com.graduation.realestateconsulting.observer.events.GmailNotificationEvent;
+import com.graduation.realestateconsulting.repository.ClientRepository;
+import com.graduation.realestateconsulting.repository.ExpertRepository;
+import com.graduation.realestateconsulting.repository.OfficeRepository;
 import com.graduation.realestateconsulting.repository.UserRepository;
 import com.graduation.realestateconsulting.services.AuthService;
 import jakarta.transaction.Transactional;
@@ -41,6 +51,15 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final ApplicationEventPublisher publisher;
 
+    private final ClientRepository clientRepository;
+    private final ExpertRepository expertRepository;
+    private final OfficeRepository officeRepository;
+
+    private final ClientMapper clientMapper;
+    private final ExpertMapper expertMapper;
+    private final OfficeMapper officeMapper;
+
+
     @Override
     public UserStatusResponse checkUserStatus(Long id) {
         Optional<User> user = userRepository.findById(id);
@@ -55,7 +74,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public String register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) {
         User user = userMapper.toEntity(request);
         User savedUser = userRepository.save(user);
 
@@ -67,7 +86,19 @@ public class AuthServiceImpl implements AuthService {
             publisher.publishEvent(new CreateExpertEvent(this, request, savedUser, request.getIdCardImage(), request.getDegreeCertificateImage()));
         }
         publisher.publishEvent(new GmailNotificationEvent(this, SentEmailMessageRequest.builder().to(savedUser.getEmail()).body(savedUser.getVerificationCode()).subject("Verification your account").build()));
-        return "registered successfully";
+
+
+
+        return RegisterResponse.builder()
+                .id(savedUser.getId())
+                .firstName(savedUser.getFirstName())
+                .lastName(savedUser.getLastName())
+                .email(savedUser.getEmail())
+                .phone(savedUser.getPhone())
+                .role(savedUser.getRole())
+                .blocksCount(savedUser.getBlocksCount())
+                .warnsCount(savedUser.getWarnsCount())
+                .build();
     }
 
 
@@ -92,7 +123,17 @@ public class AuthServiceImpl implements AuthService {
         String jwt = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        return LoginResponse.builder().user(userMapper.toDto(savedUser)).token(jwt).refreshToken(refreshToken).build();
+        Office office = officeRepository.findByUserId(savedUser.getId()).orElse(null);
+        Expert expert = expertRepository.findByUserId(savedUser.getId()).orElse(null);
+        Client client = clientRepository.findByUserId(savedUser.getId()).orElse(null);
+
+        return LoginResponse.builder()
+                .token(jwt)
+                .refreshToken(refreshToken)
+                .client(clientMapper.toDto(client))
+                .expert(expertMapper.toDto(expert))
+                .office(officeMapper.toDto(office))
+                .build();
     }
 
 

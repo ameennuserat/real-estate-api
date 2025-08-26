@@ -43,11 +43,16 @@ public class User implements UserDetails {
 
     private boolean enable;
 
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
     private String verificationCode;
 
     private String imageUrl;
+
+    private int warnsCount;
+
+    private int blocksCount;
 
     @Column(name = "fcm_token")
     private String fcmToken;
@@ -60,9 +65,16 @@ public class User implements UserDetails {
 
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     private Expert expert;
-
+    // for how cancel
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> booking;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<BookingFeedback> bookingFeedback;
+
+    // for how booking
+    @OneToMany(mappedBy = "client",cascade = CascadeType.ALL)
+    private List<Booking> booking1;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

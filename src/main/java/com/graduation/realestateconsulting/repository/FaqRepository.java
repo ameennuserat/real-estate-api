@@ -1,11 +1,12 @@
 package com.graduation.realestateconsulting.repository;
 
 import com.graduation.realestateconsulting.model.entity.Faq;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.List;
+public interface FaqRepository extends JpaRepository<Faq, Long>, JpaSpecificationExecutor<Faq> {
 
-public interface FaqRepository extends JpaRepository<Faq, Long> {
-
-    List<Faq> findAllByFaqCategoryId(Long categoryId);
+    Page<Faq> findAllByFaqCategoryId(Pageable pageable, Long categoryId);
 }

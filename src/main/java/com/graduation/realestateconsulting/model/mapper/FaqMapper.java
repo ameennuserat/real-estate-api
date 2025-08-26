@@ -12,6 +12,7 @@ import java.util.List;
 @Mapper(uses = {AppMapper.class,FaqCategoryMapper.class})
 public interface FaqMapper {
 
+    @Mapping(target = "category",source = "faqCategory")
     FaqResponse toDto(Faq entity);
 
     List<FaqResponse> toDtos(List<Faq> entities);
@@ -19,5 +20,6 @@ public interface FaqMapper {
     @Mapping(target = "faqCategory",source ="categoryId",qualifiedByName = "getFaqCategoryById")
     Faq toEntity(FaqRequest request);
 
+    @Mapping(target = "faqCategory",source ="categoryId",qualifiedByName = "getFaqCategoryById")
     void toEntity(@MappingTarget Faq entity, FaqRequest request);
 }

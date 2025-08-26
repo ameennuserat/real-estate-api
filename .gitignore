@@ -4,9 +4,11 @@ target/
 logs/
 images/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-!**/src/main/resources/static/images
+src/main/**/target/
+src/test/**/target/
+src/main/resources/static/images
+src/main/resources/*.json
+
 
 ### STS ###
 .apt_generated

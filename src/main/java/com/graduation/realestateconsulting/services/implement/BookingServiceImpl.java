@@ -51,10 +51,17 @@ public class BookingServiceImpl implements BookingService {
 
 
         Expert expert = expertRepository.findById(request.getExpertId()).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
-        Client client = clientRepository.findById(request.getClientId()).orElseThrow(() -> new IllegalArgumentException("Client not found"));
+        User client = userRepository.findById(request.getClientId()).orElseThrow(() -> new IllegalArgumentException("Client not found"));
         LocalDateTime startTime = request.getStartDate();
         LocalDateTime endTime = startTime.plusMinutes(request.getDuration());
 
+        if(request.getCallType().equals(CallType.AUDIO) && expert.getPerMinuteAudio() == null){
+            throw new IllegalArgumentException("Expert has no perMinuteAudio");
+        }
+
+        if(request.getCallType().equals(CallType.VIDEO) && expert.getPerMinuteVideo() == null){
+            throw new IllegalArgumentException("Expert has no perMinuteVideo");
+        }
 
         validateTimeSlot(expert.getId(), startTime, endTime);
 
@@ -88,7 +95,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
-    private DiscountResult applyCouponIfPresent(BigDecimal originalPrice, String couponCode, Client client, Expert expert) {
+    private DiscountResult applyCouponIfPresent(BigDecimal originalPrice, String couponCode, User client, Expert expert) {
         if (couponCode == null || couponCode.isEmpty()) {
             return new DiscountResult(originalPrice, BigDecimal.ZERO, null);
         }
@@ -136,7 +143,6 @@ public class BookingServiceImpl implements BookingService {
     private PaymentIntent createPaymentIntentAndUpdateBooking(Booking booking, BigDecimal finalPrice) throws StripeException {
         long finalPriceInCents = finalPrice.multiply(BigDecimal.valueOf(100)).longValue();
 
-
         PaymentIntent paymentIntent = paymentService.createPaymentIntent(booking.getId(), finalPriceInCents);
 
         booking.setPaymentIntentId(paymentIntent.getId());
@@ -156,7 +162,26 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponse> getAllBookings(BookingStatus status) {
         try {
             User user = userRepository.findByEmail(jwtService.getCurrentUserName()).orElseThrow();
-            List<Booking> bookings = bookingRepository.findAllByExpertIdAndBookingStatus(user.getExpert().getId(), status);
+            List<Booking> bookings = null;
+            if(user.getRole().equals(Role.EXPERT)) {
+                bookings = bookingRepository.findAllByExpertIdAndBookingStatus(user.getExpert().getId(), status);
+            }
+            
+//            else {   bookings = bookingRepository.findAllByClientIdAndBookingStatus(user.getClient().getId(), status); }
+
+            return bookingMapper.toDtos(bookings);
+        } catch (Exception e) {
+            throw new RuntimeException("you don't have any bookings for " + jwtService.getCurrentUserName());
+        }
+    }
+
+    @Override
+    public List<BookingResponse> getMyBookings(BookingStatus status) {
+        try {
+            User user = userRepository.findByEmail(jwtService.getCurrentUserName()).orElseThrow();
+            List<Booking> bookings = null;
+                bookings = bookingRepository.findAllByClientIdAndBookingStatus(user.getId(), status);
+
             return bookingMapper.toDtos(bookings);
         } catch (Exception e) {
             throw new RuntimeException("you don't have any bookings for " + jwtService.getCurrentUserName());
@@ -211,4 +236,6 @@ public class BookingServiceImpl implements BookingService {
         booking.setUser(user);
         return bookingMapper.toDto(bookingRepository.save(booking));
     }
+
+
 }

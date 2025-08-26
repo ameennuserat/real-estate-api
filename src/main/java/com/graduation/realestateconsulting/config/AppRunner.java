@@ -158,6 +158,8 @@ public class AppRunner implements CommandLineRunner {
             officeRepository.save(Office.builder()
                             .user(office)
                             .location("office")
+                            .rateCount(1)
+                            .totalRate(5)
                             .latitude(22)
                             .longitude(32)
                             .commercialRegisterImage("office")

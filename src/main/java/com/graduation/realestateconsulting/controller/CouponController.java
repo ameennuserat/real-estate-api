@@ -82,7 +82,7 @@ public class CouponController {
                                     schema = @Schema(implementation = GlobalResponse.class)))
             }
     )
-    @PreAuthorize("hasAuthority('ADMIN')")
+   // @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<?> getAllCoupons() {
         GlobalResponse globalResponse = GlobalResponse.builder()
@@ -130,6 +130,26 @@ public class CouponController {
         GlobalResponse globalResponse = GlobalResponse.builder()
                 .status("Success")
                 .data(couponService.getCouponById(id))
+                .build();
+        return ResponseEntity.ok(globalResponse);
+    }
+
+    @Operation(
+            summary = "Get all coupons created by admin ",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Coupon retrieved successfully",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = GlobalResponse.class))),
+                    @ApiResponse(responseCode = "400 or 404", description = "Coupon not found or invalid ID",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ExceptionResponse.class)))
+            }
+    )
+    @GetMapping("/admin-coupons")
+    public ResponseEntity<?> getGeneralCoupons() {
+        GlobalResponse globalResponse = GlobalResponse.builder()
+                .status("Success")
+                .data(couponService.getGeneralCoupons())
                 .build();
         return ResponseEntity.ok(globalResponse);
     }

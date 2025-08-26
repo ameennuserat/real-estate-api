@@ -1,30 +1,36 @@
 package com.graduation.realestateconsulting.services.implement;
 
 import com.graduation.realestateconsulting.model.dto.request.CreateReportRequest;
+import com.graduation.realestateconsulting.model.dto.request.NotificationRequest;
 import com.graduation.realestateconsulting.model.dto.request.ReportSearchCriteria;
+import com.graduation.realestateconsulting.model.dto.request.SentEmailMessageRequest;
 import com.graduation.realestateconsulting.model.dto.response.ExpertReportSummaryResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportCategoryResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportResponse;
 import com.graduation.realestateconsulting.model.entity.Report;
 import com.graduation.realestateconsulting.model.entity.ReportCategory;
 import com.graduation.realestateconsulting.model.entity.User;
+import com.graduation.realestateconsulting.model.enums.Role;
 import com.graduation.realestateconsulting.model.mapper.ReportMapper;
 import com.graduation.realestateconsulting.model.mapper.UserMapper;
+import com.graduation.realestateconsulting.observer.events.GmailNotificationEvent;
 import com.graduation.realestateconsulting.repository.ReportCategoryRepository;
 import com.graduation.realestateconsulting.repository.ReportRepository;
 import com.graduation.realestateconsulting.repository.UserRepository;
+import com.graduation.realestateconsulting.services.NotificationService;
+import com.graduation.realestateconsulting.services.ReportService;
 import com.graduation.realestateconsulting.services.UserManagementService;
 import com.graduation.realestateconsulting.trait.ReportSpecification;
-import jakarta.xml.bind.SchemaOutputResolver;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import com.graduation.realestateconsulting.services.ReportService;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,6 +45,8 @@ public class ReportServiceImpl implements ReportService {
     private final ReportMapper reportMapper;
     private final UserManagementService userManagementService;
     private final UserMapper userMapper;
+    private final NotificationService notificationService;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     @Transactional
@@ -52,7 +60,7 @@ public class ReportServiceImpl implements ReportService {
         }
         ReportCategory category = reportCategoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid report category ID."));
-
+        //TODO Notify the expert when the number of his reports reaches a specific number
         return reportMapper.toDto(reportRepository.save(reportMapper.toEntity(request, category, reporter, reportedUser)));
     }
 
@@ -92,8 +100,8 @@ public class ReportServiceImpl implements ReportService {
 
         userManagementService.blockUser(report.getReportedUser().getId(), 15);
 
-        List<Report> allReportsForThisUser = reportRepository.findByReportedUser(reportedUser);
 
+        List<Report> allReportsForThisUser = reportRepository.findByReportedUser(reportedUser);
         if (!allReportsForThisUser.isEmpty()) {
             reportRepository.deleteAll(allReportsForThisUser);
         }
@@ -116,6 +124,7 @@ public class ReportServiceImpl implements ReportService {
         if (!allReportsForThisUser.isEmpty()) {
             reportRepository.deleteAll(allReportsForThisUser);
         }
+
     }
 
 
@@ -124,6 +133,30 @@ public class ReportServiceImpl implements ReportService {
     public void processDeleteAction(Long reportId) {
         Report report = reportRepository.findById(reportId).orElseThrow(() -> new IllegalArgumentException("Report not found."));
         User reportedUser = report.getReportedUser();
+
+        // to user
+        String userSubject = "Account Deletion Notice";
+        String userBody = String.format(
+                "Dear %s,\n\nThis is to inform you that your account has been deleted by an administrator due to repeated violations of our platform's policies.\n\nSincerely,\nThe Support Team",
+                reportedUser.getFirstName()
+        );
+        SentEmailMessageRequest emailRequest = new SentEmailMessageRequest(reportedUser.getEmail(), userSubject, userBody);
+        publisher.publishEvent(new GmailNotificationEvent(this, emailRequest));
+
+        // to admins
+        String adminTitle = "User Account Deleted";
+        String adminMessage = String.format(
+                "The account for user %s (%s) has been permanently deleted by an administrator following reports.",
+                reportedUser.getFirstName(),
+                reportedUser.getEmail()
+        );
+        List<User> admins = userRepository.findAllByRole(Role.ADMIN);
+        for (User user : admins) {
+            NotificationRequest request = NotificationRequest.builder().title(adminTitle).message(adminMessage).user(user).build();
+            notificationService.createAndSendNotification(request);
+        }
+
+        // delete all user's report
         List<Report> allReportsForThisUser = reportRepository.findByReportedUser(reportedUser);
         if (!allReportsForThisUser.isEmpty()) {
             reportRepository.deleteAll(allReportsForThisUser);
@@ -146,7 +179,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional(readOnly = true)
     public Page<ExpertReportSummaryResponse> getFrequentlyReportedExperts(Pageable pageable) {
-        
+
         Page<Object[]> expertCountsPage = reportRepository.findFrequentlyReportedExperts(pageable);
 
 
@@ -177,5 +210,10 @@ public class ReportServiceImpl implements ReportService {
                     expertReports
             );
         });
+    }
+
+    @Override
+    public Page<ReportResponse> filterReport(Specification<Report> reportSpecification, Pageable pageable) {
+        return reportRepository.findAll(reportSpecification, pageable).map(reportMapper::toDto);
     }
 }

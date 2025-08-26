@@ -25,6 +25,7 @@ public interface PropertyMapper {
 
 
     @Mapping(target ="office",source = "officeId" ,qualifiedByName = "getOfficeById")
+    @Mapping(target ="viewsCount",constant = "0")
     Property toEntity(PropertyRequest request);
     @Mapping(target ="office",source = "officeId" ,qualifiedByName = "getOfficeById")
     void toEntity(@MappingTarget Property entity,PropertyRequest request);

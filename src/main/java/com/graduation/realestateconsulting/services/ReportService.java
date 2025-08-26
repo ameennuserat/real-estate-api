@@ -5,10 +5,11 @@ import com.graduation.realestateconsulting.model.dto.request.ReportSearchCriteri
 import com.graduation.realestateconsulting.model.dto.response.ExpertReportSummaryResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportCategoryResponse;
 import com.graduation.realestateconsulting.model.dto.response.ReportResponse;
-import com.graduation.realestateconsulting.model.entity.ReportCategory;
+import com.graduation.realestateconsulting.model.entity.Report;
 import com.graduation.realestateconsulting.model.entity.User;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,5 +35,7 @@ public interface ReportService {
 
     Page<ReportResponse> searchReports(ReportSearchCriteria criteria, Pageable pageable);
 
-    public Page<ExpertReportSummaryResponse> getFrequentlyReportedExperts(Pageable pageable);
+    Page<ExpertReportSummaryResponse> getFrequentlyReportedExperts(Pageable pageable);
+
+    Page<ReportResponse> filterReport(Specification<Report> reportSpecification, Pageable pageable);
 }

@@ -10,6 +10,8 @@ public class OfficeResponse {
     private Long id;
     private UserResponse user;
     private String bio;
+    private double rating;
+    private double rateCount;
     private String location;
     private double latitude;
     private double longitude;

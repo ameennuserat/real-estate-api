@@ -11,7 +11,9 @@ import com.graduation.realestateconsulting.repository.OfficeRepository;
 import com.graduation.realestateconsulting.services.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,11 @@ public class OfficeServiceImpl implements OfficeService {
     @Override
     public List<OfficeResponse> findAllByUserStatus(UserStatus status) {
         return mapper.toDtos(repository.findAllByUserStatus((status)));
+    }
+
+    @Override
+    public List<OfficeResponse> findTop20Rated() {
+        return mapper.toDtos(repository.findTop20ByAverageRating(PageRequest.of(0, 20)));
     }
 
     @Override
@@ -85,6 +92,11 @@ public class OfficeServiceImpl implements OfficeService {
         office.setCommercialRegisterImage(imageUrl);
 
         repository.save(office);
+    }
+
+    @Override
+    public Page<OfficeResponse> filterOffice(Specification<Office> officeSpecification, Pageable pageable) {
+        return repository.findAll(officeSpecification, pageable).map(mapper::toDto);
     }
 
 
