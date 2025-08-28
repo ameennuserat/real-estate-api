@@ -82,6 +82,12 @@ public class FiltersSpecificationService<T> {
                         predicates.add(propertyOfficeName);
                         break;
 
+                    case LIKE_TICKET_CLIENT_NAME:
+                        Expression<String> getName1 = criteriaBuilder.concat(root.join("client").join("user").get("firstName"), criteriaBuilder.concat(" ", root.join("client").join("user").get("lastName")));
+                        Predicate ticketClientName = criteriaBuilder.like(criteriaBuilder.lower(getName1), "%" + requestDto.getValue().toLowerCase() + "%");
+                        predicates.add(ticketClientName);
+                        break;
+
                     case EQUAL_RATE:
                         Path<Double> totalRate = root.get("totalRate");
                         Path<Double> rateCount = root.get("rateCount");
