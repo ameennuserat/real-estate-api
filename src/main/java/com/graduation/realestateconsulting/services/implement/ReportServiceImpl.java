@@ -22,6 +22,8 @@ import com.graduation.realestateconsulting.services.ReportService;
 import com.graduation.realestateconsulting.services.UserManagementService;
 import com.graduation.realestateconsulting.trait.ReportSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -72,6 +74,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Cacheable(value = "reports", key = "#id")
     @Transactional(readOnly = true)
     public ReportResponse getReportById(Long id) {
         Report report = reportRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Report not found."));
@@ -79,18 +82,21 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Cacheable(value = "reportCategories")
     public List<ReportCategoryResponse> getReportCategories() {
         List<ReportCategory> reportCategories = reportCategoryRepository.findAll();
         return reportMapper.toCategoryResponses(reportCategories);
     }
 
     @Override
+    @CacheEvict(value = "reportCategories", allEntries = true)
     public void deleteReportCategory(Long id) {
         ReportCategory reportCategory = reportCategoryRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Report category not found."));
         reportCategoryRepository.delete(reportCategory);
     }
 
     @Override
+    @CacheEvict(value = "reports", key = "#reportId")
     @Transactional
     public void processBlockAction(Long reportId) {
         Report report = reportRepository.findById(reportId)
@@ -109,6 +115,7 @@ public class ReportServiceImpl implements ReportService {
 
 
     @Override
+    @CacheEvict(value = "reports", key = "#reportId")
     @Transactional
     public void processWarnAction(Long reportId) {
         Report report = reportRepository.findById(reportId)
@@ -129,6 +136,7 @@ public class ReportServiceImpl implements ReportService {
 
 
     @Override
+    @CacheEvict(value = "reports", key = "#reportId")
     @Transactional
     public void processDeleteAction(Long reportId) {
         Report report = reportRepository.findById(reportId).orElseThrow(() -> new IllegalArgumentException("Report not found."));

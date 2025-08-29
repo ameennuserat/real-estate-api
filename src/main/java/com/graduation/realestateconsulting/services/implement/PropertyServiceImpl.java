@@ -14,6 +14,8 @@ import com.graduation.realestateconsulting.services.ImageService;
 import com.graduation.realestateconsulting.services.NotificationService;
 import com.graduation.realestateconsulting.services.PropertyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -49,12 +51,14 @@ public class PropertyServiceImpl implements PropertyService {
         return repository.findAllByOfficeId(pageable, officeId).map(mapper::toDto);
     }
 
+    @Cacheable(value = "properties_top_viewed")
     @Override
     public List<PropertyResponse> findTop20Viewed() {
         return mapper.toDtos(repository.findTop20ByOrderByViewsCountDesc());
     }
 
     @Transactional
+    @CacheEvict(value = "properties_top_viewed", allEntries = true)
     @Override
     public PropertyResponse findById(Long id) {
         Property property = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Property not found"));
@@ -72,6 +76,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Transactional
+    @CacheEvict(value = "properties_top_viewed", allEntries = true)
     @Override
     public PropertyResponse update(Long id, PropertyRequest request) {
         Property property = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Property not found"));
@@ -81,6 +86,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Transactional
+    @CacheEvict(value = "properties_top_viewed", allEntries = true)
     @Override
     public void delete(Long id) throws IOException {
 

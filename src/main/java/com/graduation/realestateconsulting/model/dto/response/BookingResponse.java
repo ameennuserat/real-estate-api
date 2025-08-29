@@ -4,8 +4,10 @@ import com.graduation.realestateconsulting.model.entity.User;
 import com.graduation.realestateconsulting.model.enums.BookingStatus;
 import com.graduation.realestateconsulting.model.enums.CallType;
 import com.graduation.realestateconsulting.model.enums.RefundStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.mapstruct.control.MappingControl;
 
 import java.math.BigDecimal;
@@ -14,6 +16,8 @@ import java.time.LocalTime;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class BookingResponse {
     private Long id;
     private UserResponse client;

@@ -10,6 +10,13 @@ import com.graduation.realestateconsulting.model.mapper.OfficeMapper;
 import com.graduation.realestateconsulting.repository.OfficeRepository;
 import com.graduation.realestateconsulting.services.ImageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +29,7 @@ import com.graduation.realestateconsulting.services.OfficeService;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OfficeServiceImpl implements OfficeService {
@@ -29,6 +37,7 @@ public class OfficeServiceImpl implements OfficeService {
     private final OfficeRepository repository;
     private final OfficeMapper mapper;
     private final ImageService imageService;
+    private final CacheManager cacheManager;
 
 
     @Override
@@ -36,21 +45,26 @@ public class OfficeServiceImpl implements OfficeService {
         return repository.findAll(pageable).map(mapper::toDto);
     }
 
+    @Cacheable(value = "officesByStatus", key = "#status")
     @Override
     public List<OfficeResponse> findAllByUserStatus(UserStatus status) {
         return mapper.toDtos(repository.findAllByUserStatus((status)));
     }
 
+    @Cacheable("offices_top_rated")
     @Override
     public List<OfficeResponse> findTop20Rated() {
         return mapper.toDtos(repository.findTop20ByAverageRating(PageRequest.of(0, 20)));
     }
 
+
+    @Cacheable(value = "offices", key = "#id")
     @Override
     public OfficeResponse findById(Long id) {
         return repository.findById(id).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Office not found"));
     }
 
+    @Cacheable(value = "myOffice", key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().name")
     @Override
     public OfficeResponse getMe() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -59,6 +73,15 @@ public class OfficeServiceImpl implements OfficeService {
         return repository.findByUserId(user.getId()).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Office not found"));
     }
 
+
+    @Caching(
+            put = { @CachePut(value = "offices", key = "#result.id") },
+            evict = {
+                    @CacheEvict(value = "myOffice", key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().name"),
+                    @CacheEvict(value = "officesByStatus", allEntries = true),
+                    @CacheEvict(value = "offices_top_rated", allEntries = true)
+            }
+    )
     @Override
     public OfficeResponse updateMe(OfficeRequest request) {
         // get user
@@ -92,6 +115,24 @@ public class OfficeServiceImpl implements OfficeService {
         office.setCommercialRegisterImage(imageUrl);
 
         repository.save(office);
+
+        Cache officesCache = cacheManager.getCache("offices");
+        Cache myOfficeCache = cacheManager.getCache("myOffice");
+        Cache officesByStatusCache = cacheManager.getCache("officesByStatus");
+        Cache officesTopRatedCache = cacheManager.getCache("offices_top_rated");
+
+        if (officesCache != null) {
+            officesCache.evict(office.getId());
+        }
+        if (myOfficeCache != null) {
+            myOfficeCache.evict(user.getEmail());
+        }
+        if (officesByStatusCache != null) {
+            officesByStatusCache.clear();
+        }
+        if (officesTopRatedCache != null) {
+            officesTopRatedCache.clear();
+        }
     }
 
     @Override

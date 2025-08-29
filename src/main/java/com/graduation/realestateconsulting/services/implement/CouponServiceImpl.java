@@ -26,6 +26,10 @@ import com.stripe.param.CouponCreateParams;
 import com.stripe.param.PromotionCodeCreateParams;
 import com.stripe.param.PromotionCodeUpdateParams;
 //import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -48,6 +52,14 @@ public class CouponServiceImpl implements CouponService {
     private final NotificationService notificationService;
 
     @Override
+    @Caching(
+            put = {@CachePut(value = "coupons" , key = "#result.id")},
+            evict = {
+                    @CacheEvict(value = "couponsByExpert" , allEntries = true),
+                    @CacheEvict(value = "allCoupons" , allEntries = true),
+                    @CacheEvict(value = "generalCoupons" , allEntries = true),
+            }
+    )
     @Transactional
     public CouponResponse createCoupon(CreateCouponRequest request, User creator) {
 
@@ -143,6 +155,14 @@ public class CouponServiceImpl implements CouponService {
 
 
     @Transactional
+    @Caching(
+            put = {@CachePut(value = "coupons" , key = "#couponId")},
+            evict = {
+                    @CacheEvict(value = "couponsByExpert" , allEntries = true),
+                    @CacheEvict(value = "allCoupons" , allEntries = true),
+                    @CacheEvict(value = "generalCoupons" , allEntries = true),
+            }
+    )
     @Override
     public CouponResponse updateCoupon(Long couponId, UpdateCouponRequest request, User currentUser) {
 
@@ -230,6 +250,7 @@ public class CouponServiceImpl implements CouponService {
     }
 
 
+    @Cacheable(value = "couponsByExpert" , key = "#expertId")
     @Override
     public List<CouponResponse> getAllCouponsByExpertId(Long expertId) {
         Expert expert = expertRepository.findById(expertId).orElseThrow(() -> new IllegalArgumentException("Expert with ID " + expertId + " not found."));
@@ -237,12 +258,14 @@ public class CouponServiceImpl implements CouponService {
         return mapper.toDtos(couponEntities);
     }
 
+    @Cacheable(value = "allCoupons")
     @Override
     public List<CouponResponse> getAllCoupons() {
         List<CouponEntity> couponEntities = couponRepository.findAll();
         return mapper.toDtos(couponEntities);
     }
 
+    @Cacheable(value = "coupons" , key = "#couponId")
     @Override
     public CouponResponse getCouponById(Long couponId) {
         CouponEntity couponEntity = couponRepository.findById(couponId).orElseThrow(() -> new IllegalArgumentException("Coupon with ID " + couponId + " not found."));
@@ -291,6 +314,7 @@ public class CouponServiceImpl implements CouponService {
         }
     }
 
+    @Cacheable(value = "generalCoupons")
     @Override
     public List<CouponResponse> getGeneralCoupons() {
         List<CouponEntity> couponEntities = couponRepository.findAllByExpertNull();

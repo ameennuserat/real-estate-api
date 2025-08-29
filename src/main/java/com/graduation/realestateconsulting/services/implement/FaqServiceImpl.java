@@ -7,6 +7,9 @@ import com.graduation.realestateconsulting.model.mapper.FaqMapper;
 import com.graduation.realestateconsulting.repository.FaqRepository;
 import com.graduation.realestateconsulting.services.FaqService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,11 +32,13 @@ public class FaqServiceImpl implements FaqService {
         return repository.findAllByFaqCategoryId(pageable, categoryId).map(mapper::toDto);
     }
 
+    @Cacheable(value = "faqs" , key = "#id")
     @Override
     public FaqResponse findById(Long id) {
         return repository.findById(id).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Faq not found"));
     }
 
+    @CachePut(value = "faqs" , key = "#result.id")
     @Override
     public FaqResponse save(FaqRequest request) {
         Faq faq = mapper.toEntity(request);
@@ -41,6 +46,7 @@ public class FaqServiceImpl implements FaqService {
         return mapper.toDto(saved);
     }
 
+    @CachePut(value = "faqs" , key = "#id")
     @Override
     public FaqResponse update(Long id, FaqRequest request) {
         Faq faq = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Faq not found"));
@@ -49,6 +55,7 @@ public class FaqServiceImpl implements FaqService {
         return mapper.toDto(saved);
     }
 
+    @CacheEvict(value = "faqs" , key = "#id")
     @Override
     public void delete(Long id) {
         repository.deleteById(id);
