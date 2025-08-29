@@ -46,6 +46,7 @@ public class SecurityConfig {
                                         "/swagger-ui/**",
                                         "/v3/api-docs/**",
                                         "/api/stripe/webhook",
+                                        "/api/callbacks/zegocloud",
                                         "/swagger-resources/**",
                                         "/swagger-resources",
                                         "/webjars/**"

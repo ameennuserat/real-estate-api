@@ -11,6 +11,13 @@ import com.graduation.realestateconsulting.repository.ExpertRepository;
 import com.graduation.realestateconsulting.services.ExpertService;
 import com.graduation.realestateconsulting.services.ImageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,10 +25,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ExpertServiceImpl implements ExpertService{
@@ -29,7 +38,7 @@ public class ExpertServiceImpl implements ExpertService{
     private final ExpertRepository repository;
     private final ExpertMapper mapper;
     private final ImageService imageService;
-
+    private final CacheManager cacheManager;
 
     @Override
     public Page<ExpertResponse> findAll(Pageable pageable) {
@@ -41,16 +50,20 @@ public class ExpertServiceImpl implements ExpertService{
         return mapper.toDtos(repository.findAllByUserStatus(status));
     }
 
+    @Cacheable(value = "top20")
     @Override
     public List<ExpertResponse> findTop20Rated() {
         return mapper.toDtos(repository.findTop20ByAverageRating(PageRequest.of(0,20)));
     }
 
+    @Cacheable(value = "experts" , key = "#id")
     @Override
     public ExpertResponse findById(Long id) {
         return repository.findById(id).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
     }
 
+
+    @Cacheable(value = "myExpertProfile", key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().name")
     @Override
     public ExpertResponse getMe() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -59,6 +72,13 @@ public class ExpertServiceImpl implements ExpertService{
         return repository.findByUserId(user.getId()).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Expert not found"));
     }
 
+    @Caching(
+            put = { @CachePut(value = "experts", key = "#result.id") },
+            evict = {
+                    @CacheEvict(value = "myExpertProfile", key = "T(org.springframework.security.core.context.SecurityContextHolder).getContext().getAuthentication().name"),
+                    @CacheEvict(value = "top20", allEntries = true)
+            }
+    )
     @Override
     public ExpertResponse updateMe(ExpertRequest request) {
         // get user
@@ -77,6 +97,8 @@ public class ExpertServiceImpl implements ExpertService{
         return  mapper.toDto(savedExpert);
     }
 
+
+    @Transactional
     @Override
     public void uploadImage(ExpertImageRequest request) throws IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -99,6 +121,17 @@ public class ExpertServiceImpl implements ExpertService{
         }
 
         repository.save(expert);
+
+        log.info("Evicting caches for user {} after image upload.", user.getEmail());
+        Cache expertsCache = cacheManager.getCache("experts");
+        if (expertsCache != null) expertsCache.evict(expert.getId());
+
+        Cache myExpertProfileCache = cacheManager.getCache("myExpertProfile");
+        if (myExpertProfileCache != null) myExpertProfileCache.evict(user.getEmail());
+
+        Cache top20Cache = cacheManager.getCache("top20");
+        if (top20Cache != null) top20Cache.clear();
+
     }
 
     @Override

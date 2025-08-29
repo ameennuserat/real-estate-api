@@ -9,6 +9,9 @@ import com.graduation.realestateconsulting.model.mapper.TicketMapper;
 import com.graduation.realestateconsulting.repository.TicketRepository;
 import com.graduation.realestateconsulting.services.TicketService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -38,6 +41,7 @@ public class TicketServiceImpl implements TicketService {
         return repository.findAllByClientId(pageable, officeId).map(mapper::toDto);
     }
 
+    @Cacheable(value = "tickets" , key = "#id")
     @Override
     public TicketResponse findById(Long id) {
         return repository.findById(id).map(mapper::toDto).orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
@@ -51,6 +55,7 @@ public class TicketServiceImpl implements TicketService {
         return mapper.toDto(saved);
     }
 
+    @CachePut(value = "tickets" , key = "#id")
     @Override
     public TicketResponse update(Long id, TicketRequest request) {
         Ticket ticket = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("Ticket not found"));
@@ -59,6 +64,7 @@ public class TicketServiceImpl implements TicketService {
         return mapper.toDto(saved);
     }
 
+    @CacheEvict(value = "tickets" , key = "#id")
     @Override
     public void delete(Long id) {
         repository.deleteById(id);

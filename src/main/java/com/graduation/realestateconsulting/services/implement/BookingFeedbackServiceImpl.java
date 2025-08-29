@@ -18,6 +18,9 @@ import com.graduation.realestateconsulting.services.BookingFeedbackService;
 import com.graduation.realestateconsulting.services.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,12 @@ public class BookingFeedbackServiceImpl implements BookingFeedbackService {
     private final ApplicationEventPublisher publisher;
 
     @Transactional
+    @Caching(
+            put = {
+                    @CachePut(value = "feedbacks", key = "#result.id"),
+                    @CachePut(value = "feedbacks", key = "#result.booking")
+            }
+    )
     @Override
     public FeedbackResponse save(FeedbackRequest request) {
         Booking booking = bookingRepository.findById(request.getBookingId()).orElseThrow(()->new RuntimeException("Booking not found"));
@@ -67,12 +76,14 @@ public class BookingFeedbackServiceImpl implements BookingFeedbackService {
         return mapper.toDtos(bookingFeedbacks);
     }
 
+    @Cacheable(value = "feedbacks" , key = "#bookingId")
     @Override
     public FeedbackResponse getByBookingId(long bookingId) {
         BookingFeedback bookingFeedbacks = repository.findByBookingId(bookingId).orElseThrow(()->new RuntimeException("Booking dont has feedback"));
         return mapper.toDto(bookingFeedbacks);
     }
 
+    @Cacheable(value = "feedbacks" , key = "#id")
     @Override
     public FeedbackResponse getById(Long id) {
         BookingFeedback bookingFeedback = repository.findById(id).orElseThrow(()->new RuntimeException("Feedback not found"));

@@ -1,6 +1,7 @@
 package com.graduation.realestateconsulting.services.implement;
 
 import com.graduation.realestateconsulting.config.JwtService;
+import com.graduation.realestateconsulting.model.dto.request.AvailableTimeToBookingRequest;
 import com.graduation.realestateconsulting.model.dto.request.BookingRequest;
 import com.graduation.realestateconsulting.model.dto.request.CancleRequest;
 import com.graduation.realestateconsulting.model.dto.request.DiscountResult;
@@ -18,17 +19,20 @@ import com.graduation.realestateconsulting.services.UserService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
-import jakarta.transaction.Transactional;
 import jakarta.xml.bind.SchemaOutputResolver;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import com.graduation.realestateconsulting.services.BookingService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +41,7 @@ import java.util.Optional;
 @Service
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
+    private final AvailabilityTimeServiceImpl availabilityTimeService;
     private final ExpertRepository expertRepository;
     private final ClientRepository clientRepository;
     private final BookingMapper bookingMapper;
@@ -46,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
     private final CouponServiceImpl couponService;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = StripeException.class)
     public BookingResponse initiateBooking(BookingRequest request) throws StripeException {
 
 
@@ -63,7 +68,19 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException("Expert has no perMinuteVideo");
         }
 
-        validateTimeSlot(expert.getId(), startTime, endTime);
+        AvailableTimeToBookingRequest availabilityRequest = AvailableTimeToBookingRequest.builder()
+                .expertId(request.getExpertId())
+                .date(request.getStartDate().toLocalDate())
+                .duration(request.getDuration())
+                .build();
+
+        List<LocalTime> availableSlotsNow = availabilityTimeService.findAvailablePeriods(availabilityRequest);
+
+        if (!availableSlotsNow.contains(startTime.toLocalTime())) {
+            throw new IllegalStateException("Sorry, this time slot is no longer available. Please choose another time.");
+        }
+
+        //validateTimeSlot(expert.getId(), startTime, endTime);
 
         BigDecimal originalPrice = calculateOriginalPrice(expert, request.getDuration(), request.getCallType());
 
@@ -71,8 +88,8 @@ public class BookingServiceImpl implements BookingService {
 
 
         Booking booking = bookingMapper.toEntity(request, expert, client, startTime, endTime, originalPrice, discountResult);
-        bookingRepository.save(booking);
 
+        bookingRepository.save(booking);
 
         PaymentIntent paymentIntent = createPaymentIntentAndUpdateBooking(booking, discountResult.finalPrice());
 
@@ -140,6 +157,7 @@ public class BookingServiceImpl implements BookingService {
         return finalPrice;
     }
 
+
     private PaymentIntent createPaymentIntentAndUpdateBooking(Booking booking, BigDecimal finalPrice) throws StripeException {
         long finalPriceInCents = finalPrice.multiply(BigDecimal.valueOf(100)).longValue();
 
@@ -152,6 +170,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
+    @Cacheable(value = "bookings", key = "#id")
     @Override
     public BookingResponse getBooking(Long id) {
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
@@ -166,7 +185,7 @@ public class BookingServiceImpl implements BookingService {
             if(user.getRole().equals(Role.EXPERT)) {
                 bookings = bookingRepository.findAllByExpertIdAndBookingStatus(user.getExpert().getId(), status);
             }
-            
+
 //            else {   bookings = bookingRepository.findAllByClientIdAndBookingStatus(user.getClient().getId(), status); }
 
             return bookingMapper.toDtos(bookings);
@@ -189,6 +208,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Transactional
+    @CachePut(value = "bookings", key = "#request.getId()")
     @Override
     public BookingResponse cancleBookingWithRefundMony(CancleRequest request) throws IllegalAccessException, StripeException {
         Booking booking = bookingRepository.findById(request.getId()).orElseThrow();
@@ -222,6 +242,9 @@ public class BookingServiceImpl implements BookingService {
         return bookingMapper.toDto(bookingRepository.save(booking));
     }
 
+
+    @Transactional
+    @CachePut(value = "bookings", key = "#request.getId()")
     @Override
     public BookingResponse cancleBookingWithoutRefundMony(CancleRequest request) throws IllegalAccessException {
         Booking booking = bookingRepository.findById(request.getId()).orElseThrow();

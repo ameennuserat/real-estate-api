@@ -1,39 +1,42 @@
 package com.graduation.realestateconsulting.model.dto.response;
 
 import com.graduation.realestateconsulting.model.enums.DiscountType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
-public record CouponResponse(
-        Long id,
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CouponResponse {
+    private Long id;
 
-        String code,
+    private String code;
 
-        String description,
+    private String description;
 
-        DiscountType discountType,
+    private DiscountType discountType;
 
-        BigDecimal discountValue,
+    private BigDecimal discountValue;
 
-        LocalDateTime expirationDate,
+    private LocalDateTime expirationDate;
 
-        Long maxUses,
+    private Long maxUses;
 
-        Long timesUsed,
+    private Long timesUsed;
 
-        boolean isActive,
+    private boolean isActive;
 
-//        Integer requiredSessions,
+    private Long expertId;
 
-        Long expertId,
+    private String expertName;
 
-        String expertName,
+    private LocalDateTime createdAt;
 
-        LocalDateTime createdAt
-
-){}
+}

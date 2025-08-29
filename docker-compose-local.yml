@@ -10,3 +10,9 @@ services:
       - "5672:5672"
       # ربط بورت 15672 لواجهة الإدارة
       - "15672:15672"
+
+  redis:
+    image: redis:alpine
+    container_name: my-redis
+    ports:
+      - "6379:6379"

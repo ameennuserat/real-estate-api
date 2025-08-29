@@ -12,12 +12,19 @@ import com.graduation.realestateconsulting.repository.RoomRepository;
 import com.graduation.realestateconsulting.repository.UserRepository;
 import com.graduation.realestateconsulting.services.RoomService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoomServiceImpl implements RoomService {
@@ -26,7 +33,9 @@ public class RoomServiceImpl implements RoomService {
     private final UserRepository userRepo;
     private final RoomMapper mapper;
     private final UserMapper userMapper;
+    private final CacheManager cacheManager;
 
+    @Cacheable(value = "userRooms", key = "#userId")
     @Override
     public List<UserRoomResponse> getAllRoomsByUserId(Long userId) {
         User user = userRepo.findById(userId).orElseThrow(()->new RuntimeException("User with id: " + userId + " not found"));
@@ -54,6 +63,7 @@ public class RoomServiceImpl implements RoomService {
         return responses;
     }
 
+    @Cacheable(value = "rooms", key = "#id")
     @Override
     public RoomResponse getRoomById(Long id) {
         return mapper.toDto(repo.findById(id).orElseThrow(() -> new RuntimeException("Room with id: "+id+" not found")));
@@ -92,10 +102,16 @@ public class RoomServiceImpl implements RoomService {
                 .build();
 
         Room savedRoom = repo.save(room);
-
+        Cache userRoomsCache = cacheManager.getCache("userRooms");
+        if (userRoomsCache != null) {
+            userRoomsCache.evict(user1.getId());
+            userRoomsCache.evict(user2.getId());
+            log.info("Evicted userRooms cache for users {} and {}", user1.getId(), user2.getId());
+        }
         return mapper.toDto(savedRoom);
     }
 
+    @CachePut(value = "rooms" , key = "#id")
     @Override
     public RoomResponse updateRoomStatus(Long id, RoomStatus status) {
         Room room = repo.findById(id).orElseThrow(() -> new RuntimeException("Room with id: "+id+" not found"));
@@ -115,6 +131,16 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public void deleteRoom(Long id) {
         Room room = repo.findById(id).orElseThrow(() -> new RuntimeException("Room with id: "+id+" not found"));
+
+        Cache roomsCache = cacheManager.getCache("rooms");
+        Cache userRoomsCache = cacheManager.getCache("userRooms");
+        if (roomsCache != null && userRoomsCache != null) {
+            roomsCache.evict(id);
+            userRoomsCache.evict(room.getUser1().getId());
+            userRoomsCache.evict(room.getUser2().getId());
+            log.info("Evicted all caches related to room {}", id);
+        }
+
         repo.delete(room);
     }
 }
